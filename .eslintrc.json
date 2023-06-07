@@ -1,14 +1,6 @@
 {
-  "extends": ["plugin:@nrwl/nx/react", "./.eslintrc.base.json"],
-  "ignorePatterns": ["!**/*"],
-  "overrides": [
-    {
-      "files": ["*.ts", "*.tsx"],
-      "rules": {}
-    },
-    {
-      "files": ["*.js", "*.jsx"],
-      "rules": {}
+    "extends": "next/core-web-vitals",
+    "rules": {
+        "@next/next/no-img-element": "off"
     }
-  ]
 }
