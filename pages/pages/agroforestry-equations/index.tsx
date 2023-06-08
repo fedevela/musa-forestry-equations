@@ -1,11 +1,12 @@
 import React, { useState } from "react";
 import { Button } from "primereact/button";
-import { Checkbox, CheckboxChangeEvent } from "primereact/checkbox";
 import Latex from "react-latex";
-import { v4 as uuidv4 } from "uuid";
 import { DataTable, DataTableSelectionChangeEvent } from "primereact/datatable";
 import { Column } from "primereact/column";
-import { InputSwitch, InputSwitchChangeEvent } from "primereact/inputswitch";
+import { Panel } from "primereact/panel";
+import { InputText } from "primereact/inputtext";
+import { ChartData, ChartOptions } from "chart.js";
+import { Chart } from "primereact/chart";
 
 const EmptyPage = () => {
   interface EnumFormulaItem {
@@ -90,13 +91,36 @@ const EmptyPage = () => {
     },
   ];
 
+  const lineData: ChartData = {
+    labels: ["January", "February", "March", "April", "May", "June", "July"],
+    datasets: [
+      {
+        label: "First Dataset",
+        data: [65, 59, 80, 81, 56, 55, 40],
+        fill: false,
+        tension: 0.4,
+      },
+      {
+        label: "Second Dataset",
+        data: [28, 48, 40, 19, 86, 27, 90],
+        fill: false,
+        tension: 0.4,
+      },
+    ],
+  };
+
   const [formulae, setFormulae] = useState<EnumFormulaItem[]>(formulaeJSON);
+  const [woodDensityConstant, setWoodDensityConstant] = useState<number>(1.0);
+  const [growthFactorConstant, setGrowthFactorConstant] = useState<number>(1.0);
+  const [environmentalConstant, setEnvironmentalConstant] =
+    useState<number>(1.0);
   const [selectedFormulae, setSelectedFormulae] = useState<EnumFormulaItem[]>(
     formulaeJSON.filter((f) => f.checked)
   );
 
   return (
     <>
+      {/* STEP 0 : LANDING PAGE */}
       <div className="card mb-0">
         <div className="grid grid-nogutter surface-0 text-800">
           <div className="col-12 md:col-6 p-6 text-center md:text-left flex align-items-center ">
@@ -110,6 +134,11 @@ const EmptyPage = () => {
               <p className="mt-0 mb-4 text-700 line-height-3">
                 calculate and visualize allometric equations
               </p>
+              <Button
+                label="Begin"
+                type="button"
+                className="mr-3 p-button-raised"
+              />
             </section>
           </div>
           <div className="col-12 md:col-6 overflow-hidden">
@@ -122,14 +151,64 @@ const EmptyPage = () => {
           </div>
         </div>
       </div>
+
+      {/* STEP 1 : FORMULA SELECTION */}
       <div className="card mb-0">
         <div className="surface-0">
           <div className="font-medium text-3xl text-900 mb-3">
-            Formula Selection
+            Step 1 : Formula Selection
           </div>
           <div className="text-500 mb-5">
             these are the available Above Ground Biomass (AGB) formulae
           </div>
+          <Panel header="Constants" toggleable collapsed={true}>
+            <h5>Growth Factor</h5>
+            <p className="m-0">
+              <span className="p-float-label">
+                <InputText
+                  id="growthfactor"
+                  type="text"
+                  value={`${growthFactorConstant}`}
+                  onChange={(e) =>
+                    setGrowthFactorConstant(parseFloat(e.target.value))
+                  }
+                />
+                <label htmlFor="growthfactor">Growth Factor</label>
+              </span>
+            </p>
+            <h5>Environmental Constant</h5>
+            <p className="m-0">
+              <span className="p-float-label">
+                <InputText
+                  id="environmentalConstant"
+                  type="text"
+                  value={`${environmentalConstant}`}
+                  onChange={(e) =>
+                    setEnvironmentalConstant(parseFloat(e.target.value))
+                  }
+                />
+                <label htmlFor="environmentalConstant">
+                  Environmental Constant
+                </label>
+              </span>
+            </p>
+            <h5>Wood Density Constant</h5>
+            <p className="m-0">
+              <span className="p-float-label">
+                <InputText
+                  id="woodDensityConstant"
+                  type="text"
+                  value={`${woodDensityConstant}`}
+                  onChange={(e) =>
+                    setWoodDensityConstant(parseFloat(e.target.value))
+                  }
+                />
+                <label htmlFor="woodDensityConstant">
+                  Environmental Constant
+                </label>
+              </span>
+            </p>
+          </Panel>
           <DataTable
             value={formulae}
             selectionMode="multiple"
@@ -143,11 +222,15 @@ const EmptyPage = () => {
           >
             <Column
               header="Name"
-              body={(formula: EnumFormulaItem) =>
-                formula.name + " " + formula.forestType + " " + formula.rainfall
-                  ? formula.rainfall + "(mm)"
-                  : ""
-              }
+              body={(formula: EnumFormulaItem) => (
+                <b>
+                  {formula.name +
+                    " " +
+                    formula.forestType +
+                    " " +
+                    (formula.rainfall ? formula.rainfall + "(mm)" : "")}
+                </b>
+              )}
             ></Column>
             <Column
               header="Formula"
@@ -166,6 +249,22 @@ const EmptyPage = () => {
               )}
             ></Column>
           </DataTable>
+        </div>
+      </div>
+
+      {/* RESULT : GRAPH DISPLAY */}
+      <div className="card mb-0">
+        <div className="surface-0">
+          <div className="font-medium text-3xl text-900 mb-3">
+            Graph Comparison
+          </div>
+          <div className="text-500 mb-5">
+            these are the graphs of Above Ground Biomass (AGB) formula
+          </div>
+
+          <div className="card">
+            <Chart type="line" data={lineData}></Chart>
+          </div>
         </div>
       </div>
     </>

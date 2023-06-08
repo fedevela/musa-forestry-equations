@@ -172,10 +172,6 @@ const Layout = ({ children }: ChildContainerProps) => {
           content="https://www.primefaces.org/static/social/sakai-nextjs.png"
         ></meta>
         <meta property="og:ttl" content="604800"></meta>
-        <link
-          href="//cdnjs.cloudflare.com/ajax/libs/KaTeX/0.9.0/katex.min.css"
-          rel="stylesheet"
-        />
         <link rel="icon" href={`/favicon.ico`} type="image/x-icon"></link>
       </Head>
 
