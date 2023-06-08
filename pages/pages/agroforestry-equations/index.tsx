@@ -9,13 +9,24 @@ import { ChartData, ChartOptions } from "chart.js";
 import { Chart } from "primereact/chart";
 
 const EmptyPage = () => {
-  interface EnumFormulaItem {
-    name: string;
-    forestType: string;
-    rainfall: string;
-    formulaTxt: string;
-    id: number;
-    checked: boolean;
+  class EnumFormulaItem {
+    name!: string;
+    forestType!: string;
+    rainfall!: string;
+    formulaTxt!: string;
+    id!: number;
+    checked!: boolean;
+    formulaExecution?: (dbh: number) => number;
+  }
+
+  function calculateName(formula: EnumFormulaItem) {
+    return (
+      formula.name +
+      " " +
+      formula.forestType +
+      " " +
+      (formula.rainfall ? formula.rainfall + "(mm)" : "")
+    );
   }
 
   interface EnumFormulaItems extends Array<EnumFormulaItem> {}
@@ -28,7 +39,7 @@ const EmptyPage = () => {
       formulaTxt:
         "AGB = exp[-1.803 - 0.976 × E + 0.976 × ln(ρ) + 2.673 × ln(dbh) - 0.0299 × [ln(dbh)]^2]",
       id: 0,
-      checked: true,
+      checked: false,
     },
     {
       name: "Chave 2005",
@@ -37,7 +48,7 @@ const EmptyPage = () => {
       formulaTxt:
         "AGB = ρ × exp[-0.667 + 1.784 × ln(dbh) + 0.207 × [ln(dbh)]^2 - 0.0281 × [ln(dbh)]^3]",
       id: 1,
-      checked: true,
+      checked: false,
     },
     {
       name: "Chave 2005",
@@ -46,7 +57,7 @@ const EmptyPage = () => {
       formulaTxt:
         "AGB = ρ × exp[-1.499 + 2.148 × ln(dbh) + 0.207 × [ln(dbh)]^2 - 0.0281 × [ln(dbh)]^3]",
       id: 2,
-      checked: true,
+      checked: false,
     },
     {
       name: "Chave 2005",
@@ -55,7 +66,7 @@ const EmptyPage = () => {
       formulaTxt:
         "AGB = ρ × exp[-1.239 + 1.980 × ln(dbh) + 0.207 × [ln(dbh)]^2 - 0.0281 × [ln(dbh)]^3]",
       id: 3,
-      checked: true,
+      checked: false,
     },
     {
       name: "Brown",
@@ -63,13 +74,14 @@ const EmptyPage = () => {
       rainfall: "700-900",
       formulaTxt: "AGB = 10^(-0.535 + log10(BA))",
       id: 4,
-      checked: true,
+      checked: false,
     },
     {
       name: "Brown",
       forestType: "dry",
       rainfall: "900-1500",
       formulaTxt: "AGB = 0.2035 × dbh^2.3196",
+      formulaExecution: (dbh) => 0.2035 * dbh ** 2.3196,
       id: 5,
       checked: true,
     },
@@ -79,44 +91,41 @@ const EmptyPage = () => {
       rainfall: "1500-4000",
       formulaTxt: "AGB = exp[-2.289 + 2.649 × ln(dbh) - 0.021 × [ln(dbh)]^2]",
       id: 6,
-      checked: true,
+      checked: false,
     },
     {
       name: "Brown",
       forestType: "wet",
       rainfall: ">4000",
-      formulaTxt: "AGB = 21.297 - 6.953 × dbh + 0.740 × dbh^",
+      formulaTxt: "AGB = 21.297 - 6.953 × dbh + 0.740 × dbh^2",
+      formulaExecution: (dbh) => 21.297 - 6.953 * dbh + 0.74 * dbh ** 2,
       id: 7,
       checked: true,
     },
   ];
 
-  const lineData: ChartData = {
-    labels: ["January", "February", "March", "April", "May", "June", "July"],
-    datasets: [
-      {
-        label: "First Dataset",
-        data: [65, 59, 80, 81, 56, 55, 40],
-        fill: false,
-        tension: 0.4,
-      },
-      {
-        label: "Second Dataset",
-        data: [28, 48, 40, 19, 86, 27, 90],
-        fill: false,
-        tension: 0.4,
-      },
-    ],
-  };
+  const xLabels = Array.from(Array(100).keys());
 
   const [formulae, setFormulae] = useState<EnumFormulaItem[]>(formulaeJSON);
-  const [woodDensityConstant, setWoodDensityConstant] = useState<number>(1.0);
-  const [growthFactorConstant, setGrowthFactorConstant] = useState<number>(1.0);
+  const [woodDensityConstant, setWoodDensityConstant] = useState<number>(0.85);
+  const [growthFactorConstant, setGrowthFactorConstant] = useState<number>(0.5);
   const [environmentalConstant, setEnvironmentalConstant] =
-    useState<number>(1.0);
+    useState<number>(0.0);
   const [selectedFormulae, setSelectedFormulae] = useState<EnumFormulaItem[]>(
     formulaeJSON.filter((f) => f.checked)
   );
+
+  const lineData: ChartData = {
+    labels: xLabels,
+    datasets: selectedFormulae.map((formula) => ({
+      label: calculateName(formula),
+      data: xLabels.map((dbh) =>
+        !formula.formulaExecution ? 0 : formula.formulaExecution(dbh)
+      ),
+      fill: false,
+      tension: 0.4,
+    })),
+  };
 
   return (
     <>
@@ -223,13 +232,7 @@ const EmptyPage = () => {
             <Column
               header="Name"
               body={(formula: EnumFormulaItem) => (
-                <b>
-                  {formula.name +
-                    " " +
-                    formula.forestType +
-                    " " +
-                    (formula.rainfall ? formula.rainfall + "(mm)" : "")}
-                </b>
+                <b>{"" + calculateName(formula)}</b>
               )}
             ></Column>
             <Column
