@@ -9,6 +9,9 @@ import { ChartData, ChartOptions } from "chart.js";
 import { Chart } from "primereact/chart";
 
 const EmptyPage = () => {
+  const [woodDensityConstant, setWoodDensityConstant] = useState<number>(1);
+  const [growthFactorConstant, setGrowthFactorConstant] = useState<number>(1);
+  const [environmentalConstant, setEnvironmentalConstant] = useState<number>(1);
   class EnumFormulaItem {
     name!: string;
     forestType!: string;
@@ -31,6 +34,8 @@ const EmptyPage = () => {
 
   interface EnumFormulaItems extends Array<EnumFormulaItem> {}
 
+  const calculateBasalArea = (dbh: number) => Math.PI * (dbh / 2) ** 2;
+
   const formulaeJSON: EnumFormulaItem[] = [
     {
       name: "Chave 2014",
@@ -38,8 +43,16 @@ const EmptyPage = () => {
       rainfall: "",
       formulaTxt:
         "AGB = exp[-1.803 - 0.976 × E + 0.976 × ln(ρ) + 2.673 × ln(dbh) - 0.0299 × [ln(dbh)]^2]",
+      formulaExecution: (dbh) =>
+        Math.exp(
+          -1.803 -
+            0.976 * environmentalConstant +
+            0.976 * Math.log(woodDensityConstant) +
+            2.673 * Math.log(dbh) -
+            0.0299 * Math.log(dbh) ** 2
+        ),
       id: 0,
-      checked: false,
+      checked: true,
     },
     {
       name: "Chave 2005",
@@ -47,8 +60,16 @@ const EmptyPage = () => {
       rainfall: "<1500",
       formulaTxt:
         "AGB = ρ × exp[-0.667 + 1.784 × ln(dbh) + 0.207 × [ln(dbh)]^2 - 0.0281 × [ln(dbh)]^3]",
+      formulaExecution: (dbh) =>
+        woodDensityConstant *
+        Math.exp(
+          -0.667 +
+            1.784 * Math.log(dbh) +
+            0.207 * Math.log(dbh) ** 2 -
+            0.0281 * Math.log(dbh) ** 3
+        ),
       id: 1,
-      checked: false,
+      checked: true,
     },
     {
       name: "Chave 2005",
@@ -56,8 +77,16 @@ const EmptyPage = () => {
       rainfall: "1500-3500",
       formulaTxt:
         "AGB = ρ × exp[-1.499 + 2.148 × ln(dbh) + 0.207 × [ln(dbh)]^2 - 0.0281 × [ln(dbh)]^3]",
+      formulaExecution: (dbh) =>
+        woodDensityConstant *
+        Math.exp(
+          -1.499 +
+            2.148 * Math.log(dbh) +
+            0.207 * Math.log(dbh) ** 2 -
+            0.0281 * Math.log(dbh) ** 3
+        ),
       id: 2,
-      checked: false,
+      checked: true,
     },
     {
       name: "Chave 2005",
@@ -65,16 +94,26 @@ const EmptyPage = () => {
       rainfall: ">3500",
       formulaTxt:
         "AGB = ρ × exp[-1.239 + 1.980 × ln(dbh) + 0.207 × [ln(dbh)]^2 - 0.0281 × [ln(dbh)]^3]",
+      formulaExecution: (dbh) =>
+        woodDensityConstant *
+        Math.exp(
+          -1.239 +
+            1.98 * Math.log(dbh) +
+            0.207 * Math.log(dbh) ** 2 -
+            0.0281 * Math.log(dbh) ** 3
+        ),
       id: 3,
-      checked: false,
+      checked: true,
     },
     {
       name: "Brown",
       forestType: "dry",
       rainfall: "700-900",
       formulaTxt: "AGB = 10^(-0.535 + log10(BA))",
+      formulaExecution: (dbh) =>
+        10 ** (-0.535 + Math.log10(calculateBasalArea(dbh))),
       id: 4,
-      checked: false,
+      checked: true,
     },
     {
       name: "Brown",
@@ -90,8 +129,10 @@ const EmptyPage = () => {
       forestType: "moist",
       rainfall: "1500-4000",
       formulaTxt: "AGB = exp[-2.289 + 2.649 × ln(dbh) - 0.021 × [ln(dbh)]^2]",
+      formulaExecution: (dbh) =>
+        Math.exp(-2.289 + 2.649 * Math.log(dbh) - 0.021 * Math.log(dbh) ** 2),
       id: 6,
-      checked: false,
+      checked: true,
     },
     {
       name: "Brown",
@@ -107,10 +148,6 @@ const EmptyPage = () => {
   const xLabels = Array.from(Array(100).keys());
 
   const [formulae, setFormulae] = useState<EnumFormulaItem[]>(formulaeJSON);
-  const [woodDensityConstant, setWoodDensityConstant] = useState<number>(0.85);
-  const [growthFactorConstant, setGrowthFactorConstant] = useState<number>(0.5);
-  const [environmentalConstant, setEnvironmentalConstant] =
-    useState<number>(0.0);
   const [selectedFormulae, setSelectedFormulae] = useState<EnumFormulaItem[]>(
     formulaeJSON.filter((f) => f.checked)
   );
