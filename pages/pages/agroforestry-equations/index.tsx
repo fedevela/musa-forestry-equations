@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Button } from "primereact/button";
 import Latex from "react-latex";
 import { DataTable, DataTableSelectionChangeEvent } from "primereact/datatable";
@@ -165,6 +165,11 @@ const EmptyPage = () => {
     })),
   };
 
+  useEffect(() => {
+    console.log(formulaeJSON);
+    debugger;
+  }, [formulaeJSON]);
+
   return (
     <>
       {/* STEP 0 : LANDING PAGE */}
@@ -281,13 +286,17 @@ const EmptyPage = () => {
             ></Column>
             <Column
               header="Edit"
-              body={(formula: EnumFormulaItem) => (
-                <Button
-                  label="Edit"
-                  icon="pi pi-pencil"
-                  className="p-button-text"
-                />
-              )}
+              body={(formula: EnumFormulaItem) => {
+                console.log(`formulaJSON = ${JSON.stringify(formulaeJSON)}`);
+                debugger;
+                return (
+                  <Button
+                    label="Edit"
+                    icon="pi pi-pencil"
+                    className="p-button-text"
+                  />
+                );
+              }}
             ></Column>
           </DataTable>
         </div>
@@ -302,10 +311,7 @@ const EmptyPage = () => {
           <div className="text-500 mb-5">
             these are the graphs of Above Ground Biomass (AGB) formula
           </div>
-
-          <div className="card">
-            <Chart type="line" data={lineData}></Chart>
-          </div>
+          <Chart type="line" data={lineData}></Chart>
         </div>
       </div>
     </>

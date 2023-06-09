@@ -146,30 +146,30 @@ const Layout = ({ children }: ChildContainerProps) => {
   return (
     <React.Fragment>
       <Head>
-        <title>Sakai by PrimeReact | Free Admin Template for NextJS</title>
+        <title>Musa Agroforestry Calculator</title>
         <meta charSet="UTF-8" />
         <meta
           name="description"
-          content="The ultimate collection of design-agnostic, flexible and accessible React UI Components."
+          content="Musa Agroforestry Calculator"
         />
         <meta name="robots" content="index, follow" />
         <meta name="viewport" content="initial-scale=1, width=device-width" />
         <meta property="og:type" content="website"></meta>
         <meta
           property="og:title"
-          content="Sakai by PrimeReact | Free Admin Template for NextJS"
+          content="Musa Agroforestry Calculator"
         ></meta>
         <meta
           property="og:url"
-          content="https://www.primefaces.org/sakai-react"
+          content="https://musaagroforestal.com/"
         ></meta>
         <meta
           property="og:description"
-          content="The ultimate collection of design-agnostic, flexible and accessible React UI Components."
+          content="Musa Agroforestry Calculator"
         />
         <meta
           property="og:image"
-          content="https://www.primefaces.org/static/social/sakai-nextjs.png"
+          content="https://musaagroforestal.com/wp-content/uploads/2023/03/Musa-graphic-only-150x150.png"
         ></meta>
         <meta property="og:ttl" content="604800"></meta>
         <link rel="icon" href={`/favicon.ico`} type="image/x-icon"></link>

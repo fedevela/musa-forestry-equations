@@ -14,12 +14,12 @@ const AppMenu = () => {
     {
       label: "Home",
       items: [
-        { label: "Dashboard", icon: "pi pi-fw pi-home", to: "/" },
         {
-          label: "Agroforestry Equations",
+          label: "Agroforestry Calculator",
           icon: "pi pi-fw pi-chart-line",
           to: "/pages/agroforestry-equations",
         },
+        { label: "Dashboard", icon: "pi pi-fw pi-home", to: "/" },
       ],
     },
     {
