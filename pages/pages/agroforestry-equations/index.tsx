@@ -211,7 +211,8 @@ const EmptyPage = () => {
             Step 1 : Formula Selection
           </div>
           <div className="text-500 mb-5">
-            these are the available Above Ground Biomass (AGB) formulae
+            these are the {formulaeJSON.length} available Above Ground Biomass
+            (AGB) formulae
           </div>
           <Panel header="Constants" toggleable collapsed={true}>
             <h5>Growth Factor</h5>
