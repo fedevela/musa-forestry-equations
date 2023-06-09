@@ -36,6 +36,7 @@ const EmptyPage = () => {
 
   const calculateBasalArea = (dbh: number) => Math.PI * (dbh / 2) ** 2;
 
+  debugger;
   const formulaeJSON: EnumFormulaItem[] = [
     {
       name: "Chave 2014",
