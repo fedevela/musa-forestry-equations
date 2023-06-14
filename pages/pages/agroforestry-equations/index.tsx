@@ -7,6 +7,7 @@ import { Panel } from "primereact/panel";
 import { InputText } from "primereact/inputtext";
 import { ChartData, ChartOptions } from "chart.js";
 import { Chart } from "primereact/chart";
+import { Checkbox, CheckboxChangeEvent } from "primereact/checkbox";
 
 const EmptyPage = () => {
   const [woodDensityConstant, setWoodDensityConstant] = useState<number>(1);
@@ -36,8 +37,7 @@ const EmptyPage = () => {
 
   const calculateBasalArea = (dbh: number) => Math.PI * (dbh / 2) ** 2;
 
-  debugger;
-  const formulaeJSON: EnumFormulaItem[] = [
+  const formulasJSON: EnumFormulaItem[] = [
     {
       name: "Chave 2014",
       forestType: "All",
@@ -148,14 +148,13 @@ const EmptyPage = () => {
 
   const xLabels = Array.from(Array(100).keys());
 
-  const [formulae, setFormulae] = useState<EnumFormulaItem[]>(formulaeJSON);
-  const [selectedFormulae, setSelectedFormulae] = useState<EnumFormulaItem[]>(
-    formulaeJSON.filter((f) => f.checked)
-  );
+  const [formulas, setFormulas] = useState<EnumFormulaItem[]>(formulasJSON);
+
+  const selectedFormulas = () => formulas.filter((f) => f.checked);
 
   const lineData: ChartData = {
     labels: xLabels,
-    datasets: selectedFormulae.map((formula) => ({
+    datasets: selectedFormulas().map((formula) => ({
       label: calculateName(formula),
       data: xLabels.map((dbh) =>
         !formula.formulaExecution ? 0 : formula.formulaExecution(dbh)
@@ -165,10 +164,14 @@ const EmptyPage = () => {
     })),
   };
 
-  useEffect(() => {
-    console.log(formulaeJSON);
-    debugger;
-  }, [formulaeJSON]);
+  const onCheckboxChange = (e: CheckboxChangeEvent) => {
+    const formulaID = e.value;
+    const isChecked: boolean = e.checked || false;
+    const newFormulas: EnumFormulaItem[] = formulas.map((aFormula) =>
+      aFormula.id === formulaID ? { ...aFormula, checked: isChecked } : aFormula
+    );
+    setFormulas(newFormulas);
+  };
 
   return (
     <>
@@ -211,9 +214,64 @@ const EmptyPage = () => {
             Step 1 : Formula Selection
           </div>
           <div className="text-500 mb-5">
-            these are the {formulaeJSON.length} available Above Ground Biomass
+            these are the {formulasJSON.length} available Above Ground Biomass
             (AGB) formulae
           </div>
+
+          <ul className="list-none p-0 m-0">
+            <li
+              className="flex align-items-center py-3 px-2 border-top-1 border-300 flex-wrap"
+              key="header"
+            >
+              <div className="text-500 w-6 md:w-2 font-medium">
+                <b>Formula Name</b>
+              </div>
+              <div className="text-900 w-full md:w-8 md:flex-order-0 flex-order-1">
+                <Latex>Formula Text</Latex>
+              </div>
+              <div className="w-6 md:w-2 flex justify-content-end">
+                <Button
+                  label="Edit"
+                  icon="pi pi-pencil"
+                  className="p-button-text"
+                  disabled
+                />
+              </div>
+            </li>
+
+            {formulas.map((aFormula) => (
+              <li
+                className={`flex align-items-center py-3 px-2 border-top-1 border-300 flex-wrap`}
+                key={aFormula.id}
+              >
+                <div className="text-500 w-6 md:w-2 font-medium">
+                  <Checkbox
+                    inputId={`checkOption1${aFormula.checked}`}
+                    name="option"
+                    value={aFormula.id}
+                    checked={aFormula.checked}
+                    onChange={onCheckboxChange}
+                  />
+                  <label htmlFor={`checkOption1${aFormula.checked}`}>
+                    <b>{"" + calculateName(aFormula)}</b>
+                  </label>
+                </div>
+                <div className="text-900 w-full md:w-8 md:flex-order-0 flex-order-1">
+                  <Latex>{aFormula.formulaTxt}</Latex>
+                </div>
+                <div className="w-6 md:w-2 flex justify-content-end">
+                  <Button
+                    label="Edit"
+                    icon="pi pi-pencil"
+                    className="p-button-text"
+                  />
+                </div>
+              </li>
+            ))}
+          </ul>
+
+          <hr></hr>
+
           <Panel header="Constants" toggleable collapsed={true}>
             <h5>Growth Factor</h5>
             <p className="m-0">
@@ -262,44 +320,6 @@ const EmptyPage = () => {
               </span>
             </p>
           </Panel>
-          <DataTable
-            value={formulae}
-            selectionMode="multiple"
-            selection={selectedFormulae}
-            onSelectionChange={(event) => {
-              if (Array.isArray(event.value)) {
-                setSelectedFormulae(event.value);
-              }
-            }}
-            dataKey="id"
-          >
-            <Column
-              header="Name"
-              body={(formula: EnumFormulaItem) => (
-                <b>{"" + calculateName(formula)}</b>
-              )}
-            ></Column>
-            <Column
-              header="Formula"
-              body={(formula: EnumFormulaItem) => (
-                <Latex>{formula.formulaTxt}</Latex>
-              )}
-            ></Column>
-            <Column
-              header="Edit"
-              body={(formula: EnumFormulaItem) => {
-                console.log(`formulaJSON = ${JSON.stringify(formulaeJSON)}`);
-                debugger;
-                return (
-                  <Button
-                    label="Edit"
-                    icon="pi pi-pencil"
-                    className="p-button-text"
-                  />
-                );
-              }}
-            ></Column>
-          </DataTable>
         </div>
       </div>
 
