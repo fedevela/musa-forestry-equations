@@ -9,7 +9,7 @@ import { ChartData, ChartOptions } from "chart.js";
 import { Chart } from "primereact/chart";
 import { Checkbox, CheckboxChangeEvent } from "primereact/checkbox";
 
-const EmptyPage = () => {
+const FLRCalculator = () => {
   const [woodDensityConstant, setWoodDensityConstant] = useState<number>(1);
   const [growthFactorConstant, setGrowthFactorConstant] = useState<number>(1);
   const [environmentalConstant, setEnvironmentalConstant] = useState<number>(1);
@@ -336,22 +336,26 @@ const EmptyPage = () => {
         </div>
       </div>
 
-
-
       {/* FLI 0 : HECTARE INFORMATION INPUT TABLE */}
       <div className="card mb-0">
         <div className="surface-0">
           <div className="font-medium text-3xl text-900 mb-3">
-            Graph Comparison
+            Number of Hectares input form
           </div>
           <div className="text-500 mb-5">
-            these are the graphs of Above Ground Biomass (AGB) formula
+            enter details about the number of hectares placed under restoration
           </div>
-          <Chart type="line" data={lineData}></Chart>
+          {/* <DataTable value={products} editMode="row" dataKey="id" onRowEditComplete={onRowEditComplete} tableStyle={{ minWidth: '50rem' }}>
+                <Column field="code" header="Code" editor={(options) => textEditor(options)} style={{ width: '20%' }}></Column>
+                <Column field="name" header="Name" editor={(options) => textEditor(options)} style={{ width: '20%' }}></Column>
+                <Column field="inventoryStatus" header="Status" body={statusBodyTemplate} editor={(options) => statusEditor(options)} style={{ width: '20%' }}></Column>
+                <Column field="price" header="Price" body={priceBodyTemplate} editor={(options) => priceEditor(options)} style={{ width: '20%' }}></Column>
+                <Column rowEditor headerStyle={{ width: '10%', minWidth: '8rem' }} bodyStyle={{ textAlign: 'center' }}></Column>
+            </DataTable> */}
         </div>
       </div>
     </>
   );
 };
 
-export default EmptyPage;
+export default FLRCalculator;
