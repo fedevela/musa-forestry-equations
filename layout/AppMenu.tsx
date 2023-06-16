@@ -15,9 +15,14 @@ const AppMenu = () => {
       label: "Home",
       items: [
         {
-          label: "Agroforestry Calculator",
+          label: "Potter Piotto Calculator",
           icon: "pi pi-fw pi-chart-line",
           to: "/pages/agroforestry-equations",
+        },
+        {
+          label: "FLR Calculator",
+          icon: "pi pi-fw pi-chart-line",
+          to: "/pages/flr-calculator",
         },
         { label: "Dashboard", icon: "pi pi-fw pi-home", to: "/" },
       ],
