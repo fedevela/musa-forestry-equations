@@ -49,6 +49,14 @@ const FLRCalculator = () => {
       .catch((err) => {
         console.log(err);
       });
+    axios
+      .get("/api/data-hectares", {})
+      .then((response) => {
+        setHectareData(response.data);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   }, []);
 
   return (
@@ -99,7 +107,15 @@ const FLRCalculator = () => {
             dataKey="id"
             tableStyle={{ minWidth: "50rem" }}
           >
-            {/* <Column field="id" header="id"></Column> */}
+            <Column
+              header=" "
+              body={(dih: DataItemHectare) => (
+                <div className="flex-nowrap">
+                  <Button label=" " icon="pi pi-file-edit" />{" "}
+                  <Button label=" " severity="danger" icon="pi pi-trash" />
+                </div>
+              )}
+            ></Column>
             <Column field="projectname" header="Proyect"></Column>
             <Column field="flrtype" header="Type"></Column>
             <Column field="country" header="Country"></Column>

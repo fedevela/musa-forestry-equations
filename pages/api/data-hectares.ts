@@ -1,9 +1,11 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import executeSQL from "../../demo/db";
+import executeSQLAndFillResponseWithValue from "../../demo/db";
 
 export default async function getAllData(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  return executeSQL(req, res, `SELECT * FROM datahectare ;`);
+  return executeSQLAndFillResponseWithValue(`SELECT * FROM datahectare ;`).then(
+    (row) => res.json(row)
+  );
 }
