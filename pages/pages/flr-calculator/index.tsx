@@ -6,6 +6,8 @@ import { Column, ColumnEditorOptions } from "primereact/column";
 import { InputText } from "primereact/inputtext";
 import { Chart } from "primereact/chart";
 import { ChartData } from "chart.js";
+import IHectareData from "../../../demo/dbmodel/hectaredata";
+import { Accordion, AccordionTab } from "primereact/accordion";
 
 const FLRCalculator = () => {
   const [woodDensityConstant, setWoodDensityConstant] = useState<number>(1);
@@ -26,29 +28,23 @@ const FLRCalculator = () => {
     return dih.flrtype + " " + dih.country + " " + (dih.hectares + "(ha)");
   }
 
-  const [hectareData, setHectareData] = useState<DataItemHectare[]>([]);
+  const [hectareData, setHectareData] = useState<{
+    [key: string]: { [key: string]: IHectareData[] };
+  }>({});
 
-  const xLabels = hectareData.map((hctr) => hctr.year);
+  // const xLabels = hectareData.map((hctr) => hctr.year);
 
-  const lineData: ChartData = {
-    labels: xLabels,
-    datasets: hectareData.map((hctr) => ({
-      label: calculateName(hctr),
-      data: hectareData.map((hctr) => hctr.hectares),
-      fill: false,
-      tension: 0.4,
-    })),
-  };
+  // const lineData: ChartData = {
+  //   labels: xLabels,
+  //   datasets: hectareData.map((hctr) => ({
+  //     label: calculateName(hctr),
+  //     data: hectareData.map((hctr) => hctr.hectares),
+  //     fill: false,
+  //     tension: 0.4,
+  //   })),
+  // };
 
   useEffect(() => {
-    axios
-      .get("/api/data-hectares", {})
-      .then((response) => {
-        setHectareData(response.data);
-      })
-      .catch((err) => {
-        console.log(err);
-      });
     axios
       .get("/api/data-hectares", {})
       .then((response) => {
@@ -100,30 +96,54 @@ const FLRCalculator = () => {
             Number of Hectares input form
           </div>
           <div className="text-500 mb-5">
-            enter details about the number of hectares placed under restoration
+            details about the number of hectares placed under restoration
           </div>
-          <DataTable
-            value={hectareData}
-            dataKey="id"
-            tableStyle={{ minWidth: "50rem" }}
-          >
-            <Column
-              header=" "
-              body={(dih: DataItemHectare) => (
-                <div className="flex-nowrap">
-                  <Button label=" " icon="pi pi-file-edit" />{" "}
-                  <Button label=" " severity="danger" icon="pi pi-trash" />
-                </div>
-              )}
-            ></Column>
-            <Column field="projectname" header="Proyect"></Column>
-            <Column field="flrtype" header="Type"></Column>
-            <Column field="country" header="Country"></Column>
-            <Column field="state" header="Region"></Column>
-            <Column field="plantedspecies" header="Species"></Column>
-            <Column field="year" header="Year"></Column>
-            <Column field="hectares" header="Hectares"></Column>
-          </DataTable>
+          <Accordion>
+            {Object.keys(hectareData).map((projectName, index) => (
+              <AccordionTab header={`Project: '${projectName}'`} key={index}>
+                <Accordion>
+                  {Object.keys(hectareData[projectName]).map(
+                    (plantedspecies, index2) => (
+                      <AccordionTab
+                        header={`Planted species: '${plantedspecies}'`}
+                        key={index}
+                      >
+                        <DataTable
+                          value={hectareData[projectName][plantedspecies]}
+                          dataKey="id"
+                          tableStyle={{ minWidth: "50rem" }}
+                        >
+                          <Column
+                            header=" "
+                            body={(dih: DataItemHectare) => (
+                              <div className="flex-nowrap">
+                                <Button label=" " icon="pi pi-file-edit" />{" "}
+                                <Button
+                                  label=" "
+                                  severity="danger"
+                                  icon="pi pi-trash"
+                                />
+                              </div>
+                            )}
+                          ></Column>
+                          <Column field="projectname" header="Proyect"></Column>
+                          <Column field="flrtype" header="Type"></Column>
+                          <Column field="country" header="Country"></Column>
+                          <Column field="state" header="Region"></Column>
+                          <Column
+                            field="plantedspecies"
+                            header="Species"
+                          ></Column>
+                          <Column field="year" header="Year"></Column>
+                          <Column field="hectares" header="Hectares"></Column>
+                        </DataTable>
+                      </AccordionTab>
+                    )
+                  )}
+                </Accordion>
+              </AccordionTab>
+            ))}
+          </Accordion>
         </div>
       </div>
 
@@ -135,7 +155,7 @@ const FLRCalculator = () => {
 
           <div className="card">
             <h5>hectares</h5>
-            <Chart type="line" data={lineData} />
+            {/* <Chart type="line" data={lineData} /> */}
           </div>
         </div>
       </div>
