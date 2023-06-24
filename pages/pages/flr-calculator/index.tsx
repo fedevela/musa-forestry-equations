@@ -8,6 +8,7 @@ import { Chart } from "primereact/chart";
 import { ChartData } from "chart.js";
 import IHectareData from "../../../demo/dbmodel/hectaredata";
 import { Accordion, AccordionTab } from "primereact/accordion";
+import ICarbonRetentionResults from "../../../demo/dbmodel/carbonretentionresults";
 
 const FLRCalculator = () => {
   const [hectareData, setHectareData] = useState<{
@@ -26,11 +27,7 @@ const FLRCalculator = () => {
   //   })),
   // };
 
-  function executeRefreshHectareData(
-    setHectareData: React.Dispatch<
-      React.SetStateAction<{ [key: string]: { [key: string]: IHectareData[] } }>
-    >
-  ) {
+  function executeRefreshHectareData() {
     axios
       .get("/api/data-hectares", {})
       .then((response) => {
@@ -41,14 +38,11 @@ const FLRCalculator = () => {
       });
   }
 
-  function executeRefreshCarbonRetention(
-    setHectareData: React.Dispatch<
-      React.SetStateAction<{ [key: string]: { [key: string]: IHectareData[] } }>
-    >
-  ) {
+  function executeRefreshCarbonRetention() {
     axios
       .get("/api/carbon-retention", {})
-      .then((response) => {
+      .then((response: any) => {
+        const carbonRetentionResponse = response as ICarbonRetentionResults[];
         debugger;
         // "potential-emissions-removals":
         //   (Number(valuesSumHectares) * Number(tcValue) * 44) / 12,
@@ -62,7 +56,8 @@ const FLRCalculator = () => {
   }
 
   useEffect(() => {
-    executeRefreshHectareData(setHectareData);
+    executeRefreshHectareData();
+    executeRefreshCarbonRetention();
   }, []);
 
   return (

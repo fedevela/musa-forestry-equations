@@ -1,5 +1,6 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import executeSQL from "../../demo/db";
+import ICarbonRetentionResults from "../../demo/dbmodel/carbonretentionresults";
 
 export default async function getAllData(
   req: NextApiRequest,
@@ -80,7 +81,7 @@ export default async function getAllData(
                 `;
               executeSQL(mainSelectStatement).then((valuesFLR: any) => {
                 res.json({
-                  valuesFLR,
+                  valuesFLR: valuesFLR as ICarbonRetentionResults[],
                 });
               });
             }
