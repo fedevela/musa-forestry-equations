@@ -10,24 +10,6 @@ import IHectareData from "../../../demo/dbmodel/hectaredata";
 import { Accordion, AccordionTab } from "primereact/accordion";
 
 const FLRCalculator = () => {
-  const [woodDensityConstant, setWoodDensityConstant] = useState<number>(1);
-  const [growthFactorConstant, setGrowthFactorConstant] = useState<number>(1);
-  const [environmentalConstant, setEnvironmentalConstant] = useState<number>(1);
-  class DataItemHectare {
-    id!: number;
-    flrtype!: string;
-    projectname!: string;
-    country!: string;
-    state!: string;
-    plantedspecies!: string;
-    year!: number;
-    hectares!: number;
-  }
-
-  function calculateName(dih: DataItemHectare) {
-    return dih.flrtype + " " + dih.country + " " + (dih.hectares + "(ha)");
-  }
-
   const [hectareData, setHectareData] = useState<{
     [key: string]: { [key: string]: IHectareData[] };
   }>({});
@@ -44,7 +26,11 @@ const FLRCalculator = () => {
   //   })),
   // };
 
-  useEffect(() => {
+  function executeRefreshHectareData(
+    setHectareData: React.Dispatch<
+      React.SetStateAction<{ [key: string]: { [key: string]: IHectareData[] } }>
+    >
+  ) {
     axios
       .get("/api/data-hectares", {})
       .then((response) => {
@@ -53,6 +39,30 @@ const FLRCalculator = () => {
       .catch((err) => {
         console.log(err);
       });
+  }
+
+  function executeRefreshCarbonRetention(
+    setHectareData: React.Dispatch<
+      React.SetStateAction<{ [key: string]: { [key: string]: IHectareData[] } }>
+    >
+  ) {
+    axios
+      .get("/api/carbon-retention", {})
+      .then((response) => {
+        debugger;
+        // "potential-emissions-removals":
+        //   (Number(valuesSumHectares) * Number(tcValue) * 44) / 12,
+        // "potential-emissions-removals-rate":
+        //   (Number(tcValue) * 44) / 12,
+        // setHectareData(response.data);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  }
+
+  useEffect(() => {
+    executeRefreshHectareData(setHectareData);
   }, []);
 
   return (
@@ -115,7 +125,7 @@ const FLRCalculator = () => {
                         >
                           <Column
                             header=" "
-                            body={(dih: DataItemHectare) => (
+                            body={(dih: IHectareData) => (
                               <div className="flex-nowrap">
                                 <Button label=" " icon="pi pi-file-edit" />{" "}
                                 <Button

@@ -19,19 +19,74 @@ export default async function getAllData(
     "Average FLR 20y": "real_averageflr20y",
   };
 
-  return executeSQL(
-    `SELECT sum(hectares), plantedspecies as "valueSumHectares" FROM datahectare group by plantedspecies ;`
-  ).then((valueSQL: any) => {
-    const { valueSumHectares } = valueSQL[0];
-    executeSQL(
-      `SELECT real_teak as "tcValue" FROM dataflr where country="Colombia" and "Subnational unit"="Meta" limit 1 ;`
-    ).then((valueSQL1: any) => {
-      const { tcValue } = valueSQL1[0];
-      res.json({
-        "potential-emissions-removals":
-          (Number(valueSumHectares) * Number(tcValue) * 44) / 12,
-        "potential-emissions-removals-rate": (Number(tcValue) * 44) / 12,
-      });
-    });
-  });
+  return executeSQL(`SELECT DISTINCT plantedspecies FROM datahectare ;`).then(
+    (valueSQL0: any) => {
+      const valuePlantedSpecies = valueSQL0.map(
+        (val: any) => "real_" + val.plantedspecies.toLowerCase()
+      );
+      executeSQL(`SELECT DISTINCT country FROM datahectare ;`).then(
+        (valueSQL2: any) => {
+          const valueCountries = valueSQL2.map((val: any) => val.country);
+          executeSQL(`SELECT DISTINCT state FROM datahectare ;`).then(
+            (valueSQL3: any) => {
+              const valueStates = valueSQL3.map((val: any) => val.state);
+              const mainSelectStatement = `
+                    WITH resultDataFLR AS (
+                        SELECT
+                            ${valuePlantedSpecies.join(", ")},
+                            country,
+                            "Subnational unit"
+                        FROM
+                            dataflr
+                        WHERE
+                            country in ('${valueCountries.join("', '")}') and
+                            "Subnational unit" in ('${valueStates.join(
+                              "', '"
+                            )}') 
+                    ),
+                    resultDataHectare AS (
+                        SELECT
+                            sum(hectares) as "valueSumHectares",
+                            plantedspecies,
+                            state,
+                            country,
+                            projectname
+                        FROM
+                            datahectare
+                        GROUP BY
+                            plantedspecies,
+                            state,
+                            country,
+                            projectname
+                    )
+                    SELECT
+                        resultDataFLR.${valuePlantedSpecies.join(
+                          ", resultDataFLR."
+                        )},
+                        resultDataHectare.valueSumHectares,
+                        resultDataHectare.plantedspecies,
+                        resultDataHectare.state,
+                        resultDataHectare.country,
+                        resultDataHectare.projectname
+                    FROM
+                        resultDataHectare
+                        JOIN resultDataFLR on resultDataHectare.state = resultDataFLR."Subnational unit"
+                        AND resultDataHectare.country = resultDataFLR.country
+                    GROUP BY
+                        resultDataHectare.plantedspecies,
+                        resultDataHectare.state,
+                        resultDataHectare.country,
+                        resultDataHectare.projectname;
+                `;
+              executeSQL(mainSelectStatement).then((valuesFLR: any) => {
+                res.json({
+                  valuesFLR,
+                });
+              });
+            }
+          );
+        }
+      );
+    }
+  );
 }
