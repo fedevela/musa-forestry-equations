@@ -80,8 +80,17 @@ export default async function getAllData(
                         resultDataHectare.projectname;
                 `;
               executeSQL(mainSelectStatement).then((valuesFLR: any) => {
+                valuesFLR.forEach((crr: any) => {
+                  valuePlantedSpecies.forEach((vpp: string) => {
+                    crr[`${vpp}_potential_emissions_removals`] =
+                      (crr["valueSumHectares"] * crr[vpp] * 44) / 12;
+                    crr[`${vpp}_potential_emissions_removals_rate`] =
+                      (crr["valueSumHectares"] * 44) / 12;
+                  });
+                });
                 res.json({
                   valuesFLR: valuesFLR as ICarbonRetentionResults[],
+                  valuePlantedSpecies,
                 });
               });
             }

@@ -14,6 +14,8 @@ const FLRCalculator = () => {
   const [hectareData, setHectareData] = useState<{
     [key: string]: { [key: string]: IHectareData[] };
   }>({});
+  const [carbonRetentionResults, setCarbonRetentionResults] =
+    useState<ICarbonRetentionResults>({} as ICarbonRetentionResults);
 
   // const xLabels = hectareData.map((hctr) => hctr.year);
 
@@ -42,13 +44,7 @@ const FLRCalculator = () => {
     axios
       .get("/api/carbon-retention", {})
       .then((response: any) => {
-        const carbonRetentionResponse = response as ICarbonRetentionResults[];
-        debugger;
-        // "potential-emissions-removals":
-        //   (Number(valuesSumHectares) * Number(tcValue) * 44) / 12,
-        // "potential-emissions-removals-rate":
-        //   (Number(tcValue) * 44) / 12,
-        // setHectareData(response.data);
+        setCarbonRetentionResults(response.data as ICarbonRetentionResults);
       })
       .catch((err) => {
         console.log(err);
@@ -108,42 +104,69 @@ const FLRCalculator = () => {
               <AccordionTab header={`Project: '${projectName}'`} key={index}>
                 <Accordion>
                   {Object.keys(hectareData[projectName]).map(
-                    (plantedspecies, index2) => (
-                      <AccordionTab
-                        header={`Planted species: '${plantedspecies}'`}
-                        key={index}
-                      >
-                        <DataTable
-                          value={hectareData[projectName][plantedspecies]}
-                          dataKey="id"
-                          tableStyle={{ minWidth: "50rem" }}
+                    (plantedspecies, index2) => {
+                      const retentionData: any =
+                        carbonRetentionResults.valuesFLR.filter(
+                          (crr) =>
+                            crr.plantedspecies === plantedspecies &&
+                            crr.projectname === projectName
+                        )[0];
+                      const plantedspeciesVarName =
+                        plantedspecies.toLowerCase();
+                      return (
+                        <AccordionTab
+                          header={`Planted species: '${plantedspecies}'`}
+                          key={index}
                         >
-                          <Column
-                            header=" "
-                            body={(dih: IHectareData) => (
-                              <div className="flex-nowrap">
-                                <Button label=" " icon="pi pi-file-edit" />{" "}
-                                <Button
-                                  label=" "
-                                  severity="danger"
-                                  icon="pi pi-trash"
-                                />
-                              </div>
-                            )}
-                          ></Column>
-                          <Column field="projectname" header="Proyect"></Column>
-                          <Column field="flrtype" header="Type"></Column>
-                          <Column field="country" header="Country"></Column>
-                          <Column field="state" header="Region"></Column>
-                          <Column
-                            field="plantedspecies"
-                            header="Species"
-                          ></Column>
-                          <Column field="year" header="Year"></Column>
-                          <Column field="hectares" header="Hectares"></Column>
-                        </DataTable>
-                      </AccordionTab>
-                    )
+                          <ul>
+                            <li>
+                              Potential emissions removal:{" "}
+                              {retentionData[
+                                `real_${plantedspeciesVarName}_potential_emissions_removals_rate`
+                              ].toFixed(2)}
+                            </li>
+                            <li>
+                              Potential emissions removal rate:{" "}
+                              {retentionData[
+                                `real_${plantedspeciesVarName}_potential_emissions_removals`
+                              ].toFixed(2)}
+                            </li>
+                          </ul>
+                          <DataTable
+                            value={hectareData[projectName][plantedspecies]}
+                            dataKey="id"
+                            tableStyle={{ minWidth: "50rem" }}
+                          >
+                            <Column
+                              header=" "
+                              body={(dih: IHectareData) => (
+                                <div className="flex-nowrap">
+                                  <Button label=" " icon="pi pi-file-edit" />{" "}
+                                  <Button
+                                    label=" "
+                                    severity="danger"
+                                    icon="pi pi-trash"
+                                  />
+                                </div>
+                              )}
+                            ></Column>
+                            <Column
+                              field="projectname"
+                              header="Proyect"
+                            ></Column>
+                            <Column field="flrtype" header="Type"></Column>
+                            <Column field="country" header="Country"></Column>
+                            <Column field="state" header="Region"></Column>
+                            <Column
+                              field="plantedspecies"
+                              header="Species"
+                            ></Column>
+                            <Column field="year" header="Year"></Column>
+                            <Column field="hectares" header="Hectares"></Column>
+                          </DataTable>
+                        </AccordionTab>
+                      );
+                    }
                   )}
                 </Accordion>
               </AccordionTab>
