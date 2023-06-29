@@ -2,7 +2,7 @@ import { NextApiRequest, NextApiResponse } from "next";
 import executeSQL from "../../demo/db";
 import {
   ICarbonRetentionResults,
-  IValueYearRollup,
+  IValueProjectYearRollup,
 } from "../../demo/dbmodel/carbonretentionresults";
 
 export default async function getAllData(
@@ -84,36 +84,35 @@ export default async function getAllData(
                 `;
               executeSQL(mainSelectStatement).then((valuesFLR: any) => {
                 valuesFLR.forEach((crr: any) => {
-                  valuePlantedSpecies
-                    .filter((vpp: string) =>
-                      vpp.includes(crr.plantedspecies.toLowerCase())
-                    )
-                    .forEach((vpp: string) => {
-                      crr[`potential_emissions_removals`] =
-                        (crr["valueSumHectares"] * crr[vpp] * 44) / 12;
-                      crr[`potential_emissions_removals_rate`] =
-                        (crr["valueSumHectares"] * 44) / 12;
-                    });
+                  valuePlantedSpecies.forEach((vpp: string) => {
+                    crr[`${vpp}_potential_emissions_removals`] =
+                      (crr["valueSumHectares"] * crr[vpp] * 44) / 12;
+                    crr[`${vpp}_potential_emissions_removals_rate`] =
+                      (crr["valueSumHectares"] * 44) / 12;
+                  });
                 });
                 executeSQL(`
-                    SELECT SUM(hectares) as sumHectares, projectname, year 
+                    SELECT SUM(hectares) as sumHectares, projectname, plantedspecies, year 
                     FROM datahectare 
-                    GROUP BY projectname, year
+                    GROUP BY projectname, plantedspecies, year
                     ;
                 `).then((valuesYR: any) => {
-                  const valueYearRollup: IValueYearRollup = {};
+                  const valueYearRollup: IValueProjectYearRollup = {};
                   valuesYR.forEach((yearRollup: any) => {
                     if (!valueYearRollup[yearRollup.projectname]) {
                       valueYearRollup[yearRollup.projectname] = {};
                     }
-                    valueYearRollup[yearRollup.projectname][yearRollup.year] =
+                    if (!valueYearRollup[yearRollup.projectname][yearRollup.plantedspecies]) {
+                      valueYearRollup[yearRollup.projectname][yearRollup.plantedspecies] = {};
+                    }
+                    valueYearRollup[yearRollup.projectname][yearRollup.plantedspecies][yearRollup.year] =
                       yearRollup.sumHectares;
                   });
                   console.log(JSON.stringify(valueYearRollup));
                   res.json({
                     valuesFLR: valuesFLR as ICarbonRetentionResults[],
                     valuePlantedSpecies,
-                    valueYearRollup: valueYearRollup as IValueYearRollup,
+                    valueYearRollup: valueYearRollup as IValueProjectYearRollup,
                   });
                 });
               });

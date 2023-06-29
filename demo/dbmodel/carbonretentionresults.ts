@@ -1,8 +1,13 @@
 interface IDataKeyNumber {
   [key: string]: number;
 }
+
 interface IValueYearRollup {
   [key: string]: IDataKeyNumber;
+}
+
+interface IValueProjectYearRollup {
+  [key: string]: IValueYearRollup;
 }
 
 interface ICarbonRetentionResults {
@@ -10,6 +15,7 @@ interface ICarbonRetentionResults {
   valuePlantedSpecies: string[];
   valueYearRollup: IValueYearRollup;
 }
+
 interface IValueFLR {
   country: string;
   plantedspecies: string;
@@ -60,4 +66,5 @@ export type {
   IValueFLR,
   IDataKeyNumber,
   IValueYearRollup,
+  IValueProjectYearRollup,
 };
