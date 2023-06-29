@@ -8,7 +8,10 @@ import { Chart } from "primereact/chart";
 import { ChartData } from "chart.js";
 import IHectareData from "../../../demo/dbmodel/hectaredata";
 import { Accordion, AccordionTab } from "primereact/accordion";
-import { ICarbonRetentionResults } from "../../../demo/dbmodel/carbonretentionresults";
+import {
+  ICarbonRetentionResults,
+  IValueFLR,
+} from "../../../demo/dbmodel/carbonretentionresults";
 
 const FLRCalculator = () => {
   const [hectareData, setHectareData] = useState<{
@@ -111,22 +114,27 @@ const FLRCalculator = () => {
                   <ul>
                     <li>
                       Total removals:{" "}
-                      {/* {retentionData[
-                        `real_${plantedspeciesVarName}_potential_emissions_removals_rate`
-                      ].toFixed(2)} */}
+                      {carbonRetentionResults?.valuesFLR
+                        ?.filter((crr) => crr.projectname === projectName)
+                        .reduce(
+                          (previousValue, currentValue) =>
+                            previousValue +
+                            (currentValue.potential_emissions_removals || 0),
+                          0
+                        )
+                        .toFixed(2)}{" "}
+                      (CO2e)
                     </li>
                   </ul>
                   <Accordion>
                     {Object.keys(hectareData[projectName]).map(
-                      (plantedspecies, index2) => {
+                      (plantedspecies) => {
                         const retentionData: any =
                           carbonRetentionResults?.valuesFLR?.filter(
                             (crr) =>
                               crr.plantedspecies === plantedspecies &&
                               crr.projectname === projectName
                           )[0];
-                        const plantedspeciesVarName =
-                          plantedspecies.toLowerCase();
                         return (
                           <AccordionTab
                             header={`Planted species: '${plantedspecies}'`}
