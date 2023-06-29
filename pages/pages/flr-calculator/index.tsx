@@ -56,6 +56,11 @@ const FLRCalculator = () => {
     executeRefreshCarbonRetention();
   }, []);
 
+  useEffect(() => {
+    console.log("carbonRetentionResults");
+    console.log(carbonRetentionResults);
+  }, [carbonRetentionResults]);
+
   return (
     <>
       {/* STEP 0 : LANDING PAGE */}
@@ -100,77 +105,92 @@ const FLRCalculator = () => {
             details about the number of hectares placed under restoration
           </div>
           <Accordion>
-            {Object.keys(hectareData).map((projectName, index) => (
-              <AccordionTab header={`Project: '${projectName}'`} key={index}>
-                <Accordion>
-                  {Object.keys(hectareData[projectName]).map(
-                    (plantedspecies, index2) => {
-                      const retentionData: any =
-                        carbonRetentionResults.valuesFLR.filter(
-                          (crr) =>
-                            crr.plantedspecies === plantedspecies &&
-                            crr.projectname === projectName
-                        )[0];
-                      const plantedspeciesVarName =
-                        plantedspecies.toLowerCase();
-                      return (
-                        <AccordionTab
-                          header={`Planted species: '${plantedspecies}'`}
-                          key={index}
-                        >
-                          <ul>
-                            <li>
-                              Potential emissions removal:{" "}
-                              {retentionData[
-                                `real_${plantedspeciesVarName}_potential_emissions_removals_rate`
-                              ].toFixed(2)}
-                            </li>
-                            <li>
-                              Potential emissions removal rate:{" "}
-                              {retentionData[
-                                `real_${plantedspeciesVarName}_potential_emissions_removals`
-                              ].toFixed(2)}
-                            </li>
-                          </ul>
-                          <DataTable
-                            value={hectareData[projectName][plantedspecies]}
-                            dataKey="id"
-                            tableStyle={{ minWidth: "50rem" }}
+            {Object.keys(hectareData).map((projectName, index) => {
+              return (
+                <AccordionTab header={`Project: '${projectName}'`} key={index}>
+                  <ul>
+                    <li>
+                      Total removals:{" "}
+                      {/* {retentionData[
+                        `real_${plantedspeciesVarName}_potential_emissions_removals_rate`
+                      ].toFixed(2)} */}
+                    </li>
+                  </ul>
+                  <Accordion>
+                    {Object.keys(hectareData[projectName]).map(
+                      (plantedspecies, index2) => {
+                        const retentionData: any =
+                          carbonRetentionResults?.valuesFLR?.filter(
+                            (crr) =>
+                              crr.plantedspecies === plantedspecies &&
+                              crr.projectname === projectName
+                          )[0];
+                        const plantedspeciesVarName =
+                          plantedspecies.toLowerCase();
+                        return (
+                          <AccordionTab
+                            header={`Planted species: '${plantedspecies}'`}
+                            key={index}
                           >
-                            <Column
-                              header=" "
-                              body={(dih: IHectareData) => (
-                                <div className="flex-nowrap">
-                                  <Button label=" " icon="pi pi-file-edit" />{" "}
-                                  <Button
-                                    label=" "
-                                    severity="danger"
-                                    icon="pi pi-trash"
-                                  />
-                                </div>
-                              )}
-                            ></Column>
-                            <Column
-                              field="projectname"
-                              header="Proyect"
-                            ></Column>
-                            <Column field="flrtype" header="Type"></Column>
-                            <Column field="country" header="Country"></Column>
-                            <Column field="state" header="Region"></Column>
-                            <Column
-                              field="plantedspecies"
-                              header="Species"
-                            ></Column>
-                            <Column field="year" header="Year"></Column>
-                            <Column field="hectares" header="Hectares"></Column>
-                          </DataTable>
-                        </AccordionTab>
-                      );
-                    }
-                  )}
-                </Accordion>
-              </AccordionTab>
-            ))}
+                            <ul>
+                              <li>
+                                Potential emissions removal :{" "}
+                                {retentionData[
+                                  `potential_emissions_removals`
+                                ].toFixed(2)}{" "}
+                                (CO2e)
+                              </li>
+                              <li>
+                                Potential emissions removal rate :{" "}
+                                {retentionData[
+                                  `potential_emissions_removals_rate`
+                                ].toFixed(2)}{" "}
+                                (CO2e/(y Ha))
+                              </li>
+                            </ul>
+                            <DataTable
+                              value={hectareData[projectName][plantedspecies]}
+                              dataKey="id"
+                              tableStyle={{ minWidth: "50rem" }}
+                            >
+                              <Column
+                                header=" "
+                                body={(dih: IHectareData) => (
+                                  <div className="flex-nowrap">
+                                    <Button label=" " icon="pi pi-file-edit" />{" "}
+                                    <Button
+                                      label=" "
+                                      severity="danger"
+                                      icon="pi pi-trash"
+                                    />
+                                  </div>
+                                )}
+                              ></Column>
+                              <Column
+                                field="projectname"
+                                header="Proyect"
+                              ></Column>
+                              <Column field="flrtype" header="Type"></Column>
+                              <Column field="country" header="Country"></Column>
+                              <Column field="state" header="Region"></Column>
+                              <Column
+                                field="plantedspecies"
+                                header="Species"
+                              ></Column>
+                              <Column field="year" header="Year"></Column>
+                              <Column
+                                field="hectares"
+                                header="Hectares"
+                              ></Column>
+                            </DataTable>
+                          </AccordionTab>
+                        );
+                      }
+                    )}
+                  </Accordion>
+                </AccordionTab>
+              );
+            })}
           </Accordion>
         </div>
       </div>
