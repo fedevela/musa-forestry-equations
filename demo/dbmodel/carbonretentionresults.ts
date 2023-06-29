@@ -1,8 +1,8 @@
-interface IValueYearData {
+interface IDataKeyNumber {
   [key: string]: number;
 }
 interface IValueYearRollup {
-  [key: string]: IValueYearData;
+  [key: string]: IDataKeyNumber;
 }
 
 interface ICarbonRetentionResults {
@@ -58,6 +58,6 @@ interface IValueFLR {
 export type {
   ICarbonRetentionResults,
   IValueFLR,
-  IValueYearData,
+  IDataKeyNumber,
   IValueYearRollup,
 };
