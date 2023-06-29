@@ -25,9 +25,9 @@ export default async function getAllData(
 
   return executeSQL(`SELECT DISTINCT plantedspecies FROM datahectare ;`).then(
     (valueSQL0: any) => {
-      const valuePlantedSpecies = valueSQL0.map(
-        (val: any) => "real_" + val.plantedspecies.toLowerCase()
-      );
+      const valuePlantedSpecies = valueSQL0
+        .filter((val: any) => val.plantedspecies.toLowerCase())
+        .map((val: any) => "real_" + val.plantedspecies.toLowerCase());
       executeSQL(`SELECT DISTINCT country FROM datahectare ;`).then(
         (valueSQL2: any) => {
           const valueCountries = valueSQL2.map((val: any) => val.country);
@@ -84,12 +84,18 @@ export default async function getAllData(
                 `;
               executeSQL(mainSelectStatement).then((valuesFLR: any) => {
                 valuesFLR.forEach((crr: any) => {
-                  valuePlantedSpecies.forEach((vpp: string) => {
-                    crr[`${vpp}_potential_emissions_removals`] =
-                      (crr["valueSumHectares"] * crr[vpp] * 44) / 12;
-                    crr[`${vpp}_potential_emissions_removals_rate`] =
-                      (crr["valueSumHectares"] * 44) / 12;
-                  });
+                  valuePlantedSpecies
+                    .filter((vpp: string) =>
+                      vpp.includes(crr.plantedspecies.toLowerCase())
+                    )
+                    .forEach((vpp: string) => {
+                      // const varNameEmissions = `${vpp}_potential_emissions_removals`;
+                      const varNameEmissions = `potential_emissions_removals`;
+                      crr[varNameEmissions] =
+                        (crr["valueSumHectares"] * crr[vpp] * 44) / 12;
+                      crr[`${varNameEmissions}_rate`] =
+                        (crr["valueSumHectares"] * 44) / 12;
+                    });
                 });
                 executeSQL(`
                     SELECT SUM(hectares) as sumHectares, projectname, plantedspecies, year 
@@ -102,11 +108,18 @@ export default async function getAllData(
                     if (!valueYearRollup[yearRollup.projectname]) {
                       valueYearRollup[yearRollup.projectname] = {};
                     }
-                    if (!valueYearRollup[yearRollup.projectname][yearRollup.plantedspecies]) {
-                      valueYearRollup[yearRollup.projectname][yearRollup.plantedspecies] = {};
+                    if (
+                      !valueYearRollup[yearRollup.projectname][
+                        yearRollup.plantedspecies
+                      ]
+                    ) {
+                      valueYearRollup[yearRollup.projectname][
+                        yearRollup.plantedspecies
+                      ] = {};
                     }
-                    valueYearRollup[yearRollup.projectname][yearRollup.plantedspecies][yearRollup.year] =
-                      yearRollup.sumHectares;
+                    valueYearRollup[yearRollup.projectname][
+                      yearRollup.plantedspecies
+                    ][yearRollup.year] = yearRollup.sumHectares;
                   });
                   console.log(JSON.stringify(valueYearRollup));
                   res.json({
