@@ -1,6 +1,14 @@
+interface IValueYearData {
+  [key: string]: number;
+}
+interface IValueYearRollup {
+  [key: string]: IValueYearData;
+}
+
 interface ICarbonRetentionResults {
   valuesFLR: IValueFLR[];
   valuePlantedSpecies: string[];
+  valueYearRollup: IValueYearRollup;
 }
 interface IValueFLR {
   country: string;
@@ -47,4 +55,9 @@ interface IValueFLR {
   real_averageflr20y_potential_emissions_removals_rate?: number;
 }
 
-export default ICarbonRetentionResults;
+export type {
+  ICarbonRetentionResults,
+  IValueFLR,
+  IValueYearData,
+  IValueYearRollup,
+};

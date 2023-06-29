@@ -8,7 +8,7 @@ import { Chart } from "primereact/chart";
 import { ChartData } from "chart.js";
 import IHectareData from "../../../demo/dbmodel/hectaredata";
 import { Accordion, AccordionTab } from "primereact/accordion";
-import ICarbonRetentionResults from "../../../demo/dbmodel/carbonretentionresults";
+import { ICarbonRetentionResults } from "../../../demo/dbmodel/carbonretentionresults";
 
 const FLRCalculator = () => {
   const [hectareData, setHectareData] = useState<{

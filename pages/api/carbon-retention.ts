@@ -1,6 +1,9 @@
 import { NextApiRequest, NextApiResponse } from "next";
 import executeSQL from "../../demo/db";
-import ICarbonRetentionResults from "../../demo/dbmodel/carbonretentionresults";
+import {
+  ICarbonRetentionResults,
+  IValueYearRollup,
+} from "../../demo/dbmodel/carbonretentionresults";
 
 export default async function getAllData(
   req: NextApiRequest,
@@ -88,9 +91,26 @@ export default async function getAllData(
                       (crr["valueSumHectares"] * 44) / 12;
                   });
                 });
-                res.json({
-                  valuesFLR: valuesFLR as ICarbonRetentionResults[],
-                  valuePlantedSpecies,
+                executeSQL(`
+                    SELECT SUM(hectares) as sumHectares, projectname, year 
+                    FROM datahectare 
+                    GROUP BY projectname, year
+                    ;
+                `).then((valuesYR: any) => {
+                  const valueYearRollup: IValueYearRollup = {};
+                  valuesYR.forEach((yearRollup: any) => {
+                    if (!valueYearRollup[yearRollup.projectname]) {
+                      valueYearRollup[yearRollup.projectname] = {};
+                    }
+                    valueYearRollup[yearRollup.projectname][yearRollup.year] =
+                      yearRollup.sumHectares;
+                  });
+                  console.log(JSON.stringify(valueYearRollup));
+                  res.json({
+                    valuesFLR: valuesFLR as ICarbonRetentionResults[],
+                    valuePlantedSpecies,
+                    valueYearRollup: valueYearRollup as IValueYearRollup,
+                  });
                 });
               });
             }
