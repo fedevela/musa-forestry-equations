@@ -10,7 +10,7 @@ import IHectareData from "../../../demo/dbmodel/hectaredata";
 import { Accordion, AccordionTab } from "primereact/accordion";
 import {
   ICarbonRetentionResults,
-  IValueFLR,
+  IDataKeyNumber,
 } from "../../../demo/dbmodel/carbonretentionresults";
 
 const FLRCalculator = () => {
@@ -19,18 +19,6 @@ const FLRCalculator = () => {
   }>({});
   const [carbonRetentionResults, setCarbonRetentionResults] =
     useState<ICarbonRetentionResults>({} as ICarbonRetentionResults);
-
-  // const xLabels = hectareData.map((hctr) => hctr.year);
-
-  // const lineData: ChartData = {
-  //   labels: xLabels,
-  //   datasets: hectareData.map((hctr) => ({
-  //     label: calculateName(hctr),
-  //     data: hectareData.map((hctr) => hctr.hectares),
-  //     fill: false,
-  //     tension: 0.4,
-  //   })),
-  // };
 
   function executeRefreshHectareData() {
     axios
@@ -55,14 +43,15 @@ const FLRCalculator = () => {
   }
 
   useEffect(() => {
+    console.log("carbonRetentionResults");
+    console.log(carbonRetentionResults);
+    console.log("hectareData");
+    console.log(hectareData);
+  }, [hectareData, carbonRetentionResults]);
+  useEffect(() => {
     executeRefreshHectareData();
     executeRefreshCarbonRetention();
   }, []);
-
-  useEffect(() => {
-    console.log("carbonRetentionResults");
-    console.log(carbonRetentionResults);
-  }, [carbonRetentionResults]);
 
   return (
     <>
@@ -108,36 +97,120 @@ const FLRCalculator = () => {
             details about the number of hectares placed under restoration
           </div>
           <Accordion>
-            {Object.keys(hectareData).map((projectName, index) => {
+            {Object.keys(hectareData).map((currentProjectName, index) => {
+              const currentProjectYearRollup =
+                carbonRetentionResults?.valueYearRollup[currentProjectName];
+              /**
+               * CALCULATE LABELS
+               */
+              const xLabelsSet = new Set();
+              Object.keys(currentProjectYearRollup)
+                .map((aPlantedSpecies) =>
+                  Object.keys(currentProjectYearRollup[aPlantedSpecies])
+                )
+                .forEach((arrayWithYears: string[]) =>
+                  arrayWithYears.forEach((aYearString: string) =>
+                    xLabelsSet.add(aYearString)
+                  )
+                );
+              const xLabels = Array.from(xLabelsSet.values()).sort();
+
+              /**
+               * CALCULATE TOTAL RETENTION
+               */
+              const totalPotentialEmissionsRemovals =
+                carbonRetentionResults?.valuesFLR
+                  ?.filter((crr) => crr.projectname === currentProjectName)
+                  .reduce(
+                    (previousValue, currentValue) =>
+                      previousValue +
+                      (currentValue.potential_emissions_removals || 0),
+                    0
+                  );
+
+              /**
+               * CALCULATE CHART DATA
+               */
+              const lineData: ChartData = {
+                labels: xLabels,
+                datasets: Object.keys(currentProjectYearRollup).map(
+                  (aPlantedSpecies: string) => {
+                    const currentDataFLR =
+                      carbonRetentionResults?.valuesFLR?.filter(
+                        (crr) =>
+                          crr.plantedspecies === aPlantedSpecies &&
+                          crr.projectname === currentProjectName
+                      )[0];
+
+                    const currentProjectSpeciesYearRollup =
+                      currentProjectYearRollup[aPlantedSpecies];
+                    const currentTotalRemovals = Object.keys(
+                      currentProjectSpeciesYearRollup
+                    ).reduce(
+                      (previousValue, currentValue) =>
+                        previousValue +
+                        ((currentProjectSpeciesYearRollup as any)[
+                          currentValue
+                        ] || 0),
+                      0
+                    );
+                    let lastRemovalsValue = 0;
+                    return {
+                      label: aPlantedSpecies,
+                      // data: [],
+                      data: Object.keys(currentProjectSpeciesYearRollup)
+                        .sort()
+                        .map((aYearStr) => {
+                          const hectaresValue = (
+                            currentProjectYearRollup as any
+                          )[aPlantedSpecies][aYearStr];
+                          lastRemovalsValue +=
+                            (hectaresValue *
+                              currentDataFLR.potential_emissions_removals) /
+                            currentTotalRemovals;
+                          return lastRemovalsValue;
+                        }),
+                      fill: false,
+                      tension: 0.4,
+                    };
+                  }
+                ),
+              };
+
               return (
-                <AccordionTab header={`Project: '${projectName}'`} key={index}>
+                <AccordionTab
+                  header={`Project: '${currentProjectName}'`}
+                  key={index}
+                >
                   <ul>
                     <li>
-                      Total removals:{" "}
-                      {carbonRetentionResults?.valuesFLR
-                        ?.filter((crr) => crr.projectname === projectName)
-                        .reduce(
-                          (previousValue, currentValue) =>
-                            previousValue +
-                            (currentValue.potential_emissions_removals || 0),
-                          0
-                        )
-                        .toFixed(2)}{" "}
-                      (CO2e)
+                      Potential emissions removals:{" "}
+                      {totalPotentialEmissionsRemovals.toFixed(2)} (CO2e)
                     </li>
                   </ul>
+
+                  <div className="card mb-0">
+                    <div className="surface-0">
+                      <div className="font-medium text-3xl text-900 mb-3">
+                        Annual Removals from FLR Activities (t CO2)
+                      </div>
+                      <div className="card">
+                        <Chart type="line" data={lineData} />
+                      </div>
+                    </div>
+                  </div>
                   <Accordion>
-                    {Object.keys(hectareData[projectName]).map(
-                      (plantedspecies) => {
+                    {Object.keys(hectareData[currentProjectName]).map(
+                      (currentPlantedspecies) => {
                         const retentionData: any =
                           carbonRetentionResults?.valuesFLR?.filter(
                             (crr) =>
-                              crr.plantedspecies === plantedspecies &&
-                              crr.projectname === projectName
+                              crr.plantedspecies === currentPlantedspecies &&
+                              crr.projectname === currentProjectName
                           )[0];
                         return (
                           <AccordionTab
-                            header={`Planted species: '${plantedspecies}'`}
+                            header={`Planted species: '${currentPlantedspecies}'`}
                             key={index}
                           >
                             <ul>
@@ -157,7 +230,11 @@ const FLRCalculator = () => {
                               </li>
                             </ul>
                             <DataTable
-                              value={hectareData[projectName][plantedspecies]}
+                              value={
+                                hectareData[currentProjectName][
+                                  currentPlantedspecies
+                                ]
+                              }
                               dataKey="id"
                               tableStyle={{ minWidth: "50rem" }}
                             >
@@ -200,19 +277,6 @@ const FLRCalculator = () => {
               );
             })}
           </Accordion>
-        </div>
-      </div>
-
-      {/* FLI 2 : RESULTS */}
-      <div className="card mb-0">
-        <div className="surface-0">
-          <div className="font-medium text-3xl text-900 mb-3">RESULTS</div>
-          <div className="text-500 mb-5">RESULTS</div>
-
-          <div className="card">
-            <h5>hectares</h5>
-            {/* <Chart type="line" data={lineData} /> */}
-          </div>
         </div>
       </div>
     </>

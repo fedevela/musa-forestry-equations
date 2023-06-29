@@ -121,7 +121,6 @@ export default async function getAllData(
                       yearRollup.plantedspecies
                     ][yearRollup.year] = yearRollup.sumHectares;
                   });
-                  console.log(JSON.stringify(valueYearRollup));
                   res.json({
                     valuesFLR: valuesFLR as ICarbonRetentionResults[],
                     valuePlantedSpecies,

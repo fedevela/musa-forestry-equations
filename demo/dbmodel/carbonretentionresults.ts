@@ -37,8 +37,8 @@ interface IValueFLR {
   real_pine?: number;
   real_mangroverestorationshrub?: number;
   real_averagemangrove?: number;
-  potential_emissions_removals?: number;
-  potential_emissions_removals_rate?: number;
+  potential_emissions_removals: number;
+  potential_emissions_removals_rate: number;
 }
 
 export type {
