@@ -14,6 +14,8 @@ import {
 } from "../../../demo/dbmodel/carbonretentionresults";
 
 const FLRCalculator = () => {
+  let totalPotentialEmissionsRemovals = 0;
+  let lineData = {};
   const [hectareData, setHectareData] = useState<{
     [key: string]: { [key: string]: IHectareData[] };
   }>({});
@@ -98,84 +100,86 @@ const FLRCalculator = () => {
           </div>
           <Accordion>
             {Object.keys(hectareData).map((currentProjectName, index) => {
-              const currentProjectYearRollup =
-                carbonRetentionResults?.valueYearRollup[currentProjectName];
-              /**
-               * CALCULATE LABELS
-               */
-              const xLabelsSet = new Set();
-              Object.keys(currentProjectYearRollup)
-                .map((aPlantedSpecies) =>
-                  Object.keys(currentProjectYearRollup[aPlantedSpecies])
-                )
-                .forEach((arrayWithYears: string[]) =>
-                  arrayWithYears.forEach((aYearString: string) =>
-                    xLabelsSet.add(aYearString)
+              if (!carbonRetentionResults?.valueYearRollup === false) {
+                const currentProjectYearRollup =
+                  carbonRetentionResults?.valueYearRollup[currentProjectName];
+                /**
+                 * CALCULATE LABELS
+                 */
+                const xLabelsSet = new Set();
+                Object.keys(currentProjectYearRollup)
+                  .map((aPlantedSpecies) =>
+                    Object.keys(currentProjectYearRollup[aPlantedSpecies])
                   )
-                );
-              const xLabels = Array.from(xLabelsSet.values()).sort();
-
-              /**
-               * CALCULATE TOTAL RETENTION
-               */
-              const totalPotentialEmissionsRemovals =
-                carbonRetentionResults?.valuesFLR
-                  ?.filter((crr) => crr.projectname === currentProjectName)
-                  .reduce(
-                    (previousValue, currentValue) =>
-                      previousValue +
-                      (currentValue.potential_emissions_removals || 0),
-                    0
+                  .forEach((arrayWithYears: string[]) =>
+                    arrayWithYears.forEach((aYearString: string) =>
+                      xLabelsSet.add(aYearString)
+                    )
                   );
+                const xLabels = Array.from(xLabelsSet.values()).sort();
 
-              /**
-               * CALCULATE CHART DATA
-               */
-              const lineData: ChartData = {
-                labels: xLabels,
-                datasets: Object.keys(currentProjectYearRollup).map(
-                  (aPlantedSpecies: string) => {
-                    const currentDataFLR =
-                      carbonRetentionResults?.valuesFLR?.filter(
-                        (crr) =>
-                          crr.plantedspecies === aPlantedSpecies &&
-                          crr.projectname === currentProjectName
-                      )[0];
-
-                    const currentProjectSpeciesYearRollup =
-                      currentProjectYearRollup[aPlantedSpecies];
-                    const currentTotalRemovals = Object.keys(
-                      currentProjectSpeciesYearRollup
-                    ).reduce(
+                /**
+                 * CALCULATE TOTAL RETENTION
+                 */
+                totalPotentialEmissionsRemovals =
+                  carbonRetentionResults?.valuesFLR
+                    ?.filter((crr) => crr.projectname === currentProjectName)
+                    .reduce(
                       (previousValue, currentValue) =>
                         previousValue +
-                        ((currentProjectSpeciesYearRollup as any)[
-                          currentValue
-                        ] || 0),
+                        (currentValue.potential_emissions_removals || 0),
                       0
                     );
-                    let lastRemovalsValue = 0;
-                    return {
-                      label: aPlantedSpecies,
-                      // data: [],
-                      data: Object.keys(currentProjectSpeciesYearRollup)
-                        .sort()
-                        .map((aYearStr) => {
-                          const hectaresValue = (
-                            currentProjectYearRollup as any
-                          )[aPlantedSpecies][aYearStr];
-                          lastRemovalsValue +=
-                            (hectaresValue *
-                              currentDataFLR.potential_emissions_removals) /
-                            currentTotalRemovals;
-                          return lastRemovalsValue;
-                        }),
-                      fill: false,
-                      tension: 0.4,
-                    };
-                  }
-                ),
-              };
+
+                /**
+                 * CALCULATE CHART DATA
+                 */
+                lineData = {
+                  labels: xLabels,
+                  datasets: Object.keys(currentProjectYearRollup).map(
+                    (aPlantedSpecies: string) => {
+                      const currentDataFLR =
+                        carbonRetentionResults?.valuesFLR?.filter(
+                          (crr) =>
+                            crr.plantedspecies === aPlantedSpecies &&
+                            crr.projectname === currentProjectName
+                        )[0];
+
+                      const currentProjectSpeciesYearRollup =
+                        currentProjectYearRollup[aPlantedSpecies];
+                      const currentTotalRemovals = Object.keys(
+                        currentProjectSpeciesYearRollup
+                      ).reduce(
+                        (previousValue, currentValue) =>
+                          previousValue +
+                          ((currentProjectSpeciesYearRollup as any)[
+                            currentValue
+                          ] || 0),
+                        0
+                      );
+                      let lastRemovalsValue = 0;
+                      return {
+                        label: aPlantedSpecies,
+                        // data: [],
+                        data: Object.keys(currentProjectSpeciesYearRollup)
+                          .sort()
+                          .map((aYearStr) => {
+                            const hectaresValue = (
+                              currentProjectYearRollup as any
+                            )[aPlantedSpecies][aYearStr];
+                            lastRemovalsValue +=
+                              (hectaresValue *
+                                currentDataFLR.potential_emissions_removals) /
+                              currentTotalRemovals;
+                            return lastRemovalsValue;
+                          }),
+                        fill: false,
+                        tension: 0.4,
+                      };
+                    }
+                  ),
+                };
+              }
 
               return (
                 <AccordionTab
@@ -195,7 +199,11 @@ const FLRCalculator = () => {
                         Annual Removals from FLR Activities (t CO2)
                       </div>
                       <div className="card">
-                        <Chart type="line" data={lineData} />
+                        {lineData ? (
+                          <Chart type="line" data={lineData} />
+                        ) : (
+                          <></>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -213,22 +221,24 @@ const FLRCalculator = () => {
                             header={`Planted species: '${currentPlantedspecies}'`}
                             key={index}
                           >
-                            <ul>
-                              <li>
-                                Potential emissions removal :{" "}
-                                {retentionData[
-                                  `potential_emissions_removals`
-                                ].toFixed(2)}{" "}
-                                (CO2e)
-                              </li>
-                              <li>
-                                Potential emissions removal rate :{" "}
-                                {retentionData[
-                                  `potential_emissions_removals_rate`
-                                ].toFixed(2)}{" "}
-                                (CO2e/(y Ha))
-                              </li>
-                            </ul>
+                            {!retentionData === false ? (
+                              <ul>
+                                <li>
+                                  Potential emissions removal : retentionData[
+                                  `potential_emissions_removals` ]?.toFixed(2){" "}
+                                  (CO2e)
+                                </li>
+                                <li>
+                                  Potential emissions removal rate :{" "}
+                                  {retentionData[
+                                    `potential_emissions_removals_rate`
+                                  ].toFixed(2)}{" "}
+                                  (CO2e/(y Ha))
+                                </li>
+                              </ul>
+                            ) : (
+                              <></>
+                            )}
                             <DataTable
                               value={
                                 hectareData[currentProjectName][
