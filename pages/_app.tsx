@@ -12,6 +12,7 @@ import "../styles/layout/layout.scss";
 import "../styles/demo/Demos.scss";
 
 import { signInWithGoogle } from "../demo/firebase";
+import User from "../demo/firebase_dto/User";
 
 type Props = AppProps & {
   Component: Page;
@@ -43,40 +44,43 @@ type Props = AppProps & {
 
 export default function MyApp({ Component, pageProps }: Props) {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
-  const [authenticatedFirebaseUser, setAuthenticatedFirebaseUser] =
-    useState<firebase.User>({} as firebase.User);
+  const [firebaseUser, setFirebaseUser] = useState<firebase.User>(
+    {} as firebase.User
+  );
 
-  function executeFirebaseAuthStateChanged(newFirebaseUser: firebase.User) {
+  async function executeFirebaseAuthStateChanged(
+    newFirebaseUser: firebase.User
+  ) {
     {
-      setAuthenticatedFirebaseUser(newFirebaseUser as firebase.User);
-      console.log(JSON.stringify(newFirebaseUser));
+      setFirebaseUser(newFirebaseUser as firebase.User);
     }
   }
+
+  const checkIsUserValid = (aFBUser: firebase.User) =>
+    !aFBUser === false &&
+    Object.keys(aFBUser as Object).length > 0 &&
+    aFBUser.uid.length > 0;
 
   //first global effect
   useEffect(() => {
     //handle changes to authorization state
-    firebase
-      .auth()
-      .onAuthStateChanged((firebaseUser: any) =>
-        executeFirebaseAuthStateChanged(firebaseUser)
-      );
+    firebase.auth().onAuthStateChanged((firebaseUser: any) => {
+      executeFirebaseAuthStateChanged(firebaseUser);
+    });
   }, []);
 
   //effect when firebase user changed
   useEffect(() => {
-    if (
-      !authenticatedFirebaseUser === false &&
-      Object.keys(authenticatedFirebaseUser as Object).length > 0 &&
-      authenticatedFirebaseUser.uid.length > 0
-    ) {
+    if (checkIsUserValid(firebaseUser)) {
       //user is defined
       setIsAuthenticated(true);
+    } else {
+      setIsAuthenticated(false);
     }
-  }, [authenticatedFirebaseUser]);
+  }, [firebaseUser]);
 
   function checkIsAuthenticated(): boolean {
-    return isAuthenticated === true;
+    return checkIsUserValid(firebaseUser) && isAuthenticated === true;
   }
 
   function BasicSelectButtonDemo() {
