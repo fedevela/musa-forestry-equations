@@ -1,16 +1,13 @@
 import React, { useEffect, useState } from "react";
 import { Button } from "primereact/button";
 import axios from "axios";
-import { DataTable, DataTableRowEditCompleteEvent } from "primereact/datatable";
-import { Column, ColumnEditorOptions } from "primereact/column";
-import { InputText } from "primereact/inputtext";
+import { DataTable } from "primereact/datatable";
+import { Column } from "primereact/column";
 import { Chart } from "primereact/chart";
-import { ChartData } from "chart.js";
 import IHectareData from "../../../demo/dbmodel/hectaredata";
 import { Accordion, AccordionTab } from "primereact/accordion";
 import {
   ICarbonRetentionResults,
-  IDataKeyNumber,
 } from "../../../demo/dbmodel/carbonretentionresults";
 
 const FLRCalculator = () => {

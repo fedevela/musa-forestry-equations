@@ -1,5 +1,5 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import executeSQLAndFillResponseWithValue from "../../demo/db";
+import executeSQLAndFillResponseWithValue from "../../demo/dbSQLite";
 import IHectareData from "../../demo/dbmodel/hectaredata";
 
 export default async function getAllData(
