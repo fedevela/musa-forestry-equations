@@ -52,7 +52,7 @@ export const InputDemo = () => {
     const [selectButtonValue2, setSelectButtonValue2] = useState(null);
     const [inputGroupValue, setInputGroupValue] = useState(false);
     const [selectedNode, setSelectedNode] = useState<TreeSelectSelectionKeysType | null>(null);
-    const [treeSelectNodes, setTreeSelectNodes] = useState<TreeNode[]>([]);
+    const [treeSelectNodes, setTreeSelectNodes] = useState<any[]>([]);
 
     const listboxValues: InputValue[] = [
         { name: 'New York', code: 'NY' },
@@ -97,7 +97,7 @@ export const InputDemo = () => {
 
     useEffect(() => {
         CountryService.getCountries().then((data) => setAutoValue(data));
-        NodeService.getTreeNodes().then((data) => setTreeSelectNodes(data));
+        // NodeService.getTreeNodes().then((data) => setTreeSelectNodes(data));
     }, []);
 
     const searchCountry = (event: AutoCompleteCompleteEvent) => {

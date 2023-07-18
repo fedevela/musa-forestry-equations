@@ -1,6 +1,6 @@
 import type { AppProps } from "next/app";
 import type { Page } from "../types/types";
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { LayoutProvider } from "../layout/context/layoutcontext";
 import Layout from "../layout/layout";
 import firebase from "../demo/firebase";
@@ -12,7 +12,18 @@ import "../styles/layout/layout.scss";
 import "../styles/demo/Demos.scss";
 
 import { signInWithGoogle } from "../demo/firebase";
-import User from "../demo/firebase_dto/User";
+
+// import User from "../demo/firebase_dto/User";
+// import {
+//   addDoc,
+//   collection,
+//   setDoc,
+//   deleteDoc,
+//   doc,
+//   query,
+//   onSnapshot,
+// } from "firebase/firestore";
+// import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
 
 type Props = AppProps & {
   Component: Page;
@@ -42,48 +53,70 @@ type Props = AppProps & {
 // tenantId
 // uid
 
-export default function MyApp({ Component, pageProps }: Props) {
+export default function MusaEquationsApp({ Component, pageProps }: Props) {
+  // const [info, setInfo] = useState<any[]>([]);
+  // const [isUpdate, setisUpdate] = useState(false);
+  // const [docId, setdocId] = useState("");
+  // const [detail, setDetail] = useState("");
+  // const [ids, setIds] = useState<string[]>([]);
+
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [firebaseUser, setFirebaseUser] = useState<firebase.User>(
     {} as firebase.User
   );
 
-  async function executeFirebaseAuthStateChanged(
-    newFirebaseUser: firebase.User
-  ) {
-    {
-      setFirebaseUser(newFirebaseUser as firebase.User);
-    }
-  }
+  const checkIsUserValid = (aFBUser: firebase.User) => {
+    debugger;
+    return (
+      !aFBUser === false &&
+      Object.keys(aFBUser).length > 0 &&
+      !aFBUser?.uid?.length === false &&
+      aFBUser?.uid?.length > 0
+    );
+  };
 
-  const checkIsUserValid = (aFBUser: firebase.User) =>
-    !aFBUser === false &&
-    Object.keys(aFBUser as Object).length > 0 &&
-    aFBUser.uid.length > 0;
+  // const getData = async (firebaseUser: firebase.User) => {
+  //   const data = await query(
+  //     firebase
+  //       .firestore()
+  //       .collection("test-collection")
+  //       .where("userIds", "array-contains", firebaseUser.uid)
+  //   );
 
-  //first global effect
+  //   onSnapshot(data, (querySnapshot) => {
+  //     const databaseInfo: any[] = [];
+  //     const dataIds: string[] = [];
+
+  //     querySnapshot.forEach((doc) => {
+  //       databaseInfo.push(doc.data().testData);
+  //       dataIds.push(doc.id as string);
+  //     });
+
+  //     setIds(dataIds);
+  //     setInfo(databaseInfo);
+  //   });
+  // };
+
   useEffect(() => {
     //handle changes to authorization state
-    firebase.auth().onAuthStateChanged((firebaseUser: any) => {
-      executeFirebaseAuthStateChanged(firebaseUser);
+    firebase.auth().onAuthStateChanged((newFirebaseUser: any) => {
+      console.log(newFirebaseUser.email);
+      if (checkIsUserValid(newFirebaseUser)) {
+        console.log(newFirebaseUser.email);
+        setIsAuthenticated(true);
+        setFirebaseUser(newFirebaseUser as firebase.User);
+      } else {
+        setIsAuthenticated(false);
+      }
     });
   }, []);
 
-  //effect when firebase user changed
-  useEffect(() => {
-    if (checkIsUserValid(firebaseUser)) {
-      //user is defined
-      setIsAuthenticated(true);
-    } else {
-      setIsAuthenticated(false);
-    }
-  }, [firebaseUser]);
-
   function checkIsAuthenticated(): boolean {
+    debugger;
     return checkIsUserValid(firebaseUser) && isAuthenticated === true;
   }
 
-  function BasicSelectButtonDemo() {
+  function RenderButtonSignInWithGoogle(): React.ReactNode {
     return (
       <>
         <div className="card flex justify-content-center">
@@ -95,7 +128,7 @@ export default function MyApp({ Component, pageProps }: Props) {
     );
   }
 
-  function renderCurrentComponent(): React.ReactNode {
+  function RenderCurrentComponent(): React.ReactNode {
     return Component.getLayout ? (
       Component.getLayout(<Component {...pageProps} />)
     ) : (
@@ -109,9 +142,9 @@ export default function MyApp({ Component, pageProps }: Props) {
     <>
       <LayoutProvider>
         {checkIsAuthenticated() ? (
-          renderCurrentComponent()
+          <RenderCurrentComponent />
         ) : (
-          <BasicSelectButtonDemo></BasicSelectButtonDemo>
+          <RenderButtonSignInWithGoogle />
         )}
       </LayoutProvider>
     </>
