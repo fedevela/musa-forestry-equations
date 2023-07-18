@@ -13,18 +13,6 @@ import "../styles/demo/Demos.scss";
 
 import { signInWithGoogle } from "../demo/firebase";
 
-// import User from "../demo/firebase_dto/User";
-// import {
-//   addDoc,
-//   collection,
-//   setDoc,
-//   deleteDoc,
-//   doc,
-//   query,
-//   onSnapshot,
-// } from "firebase/firestore";
-// import { getAuth, createUserWithEmailAndPassword } from "firebase/auth";
-
 type Props = AppProps & {
   Component: Page;
 };
@@ -54,19 +42,12 @@ type Props = AppProps & {
 // uid
 
 export default function MusaEquationsApp({ Component, pageProps }: Props) {
-  // const [info, setInfo] = useState<any[]>([]);
-  // const [isUpdate, setisUpdate] = useState(false);
-  // const [docId, setdocId] = useState("");
-  // const [detail, setDetail] = useState("");
-  // const [ids, setIds] = useState<string[]>([]);
-
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [firebaseUser, setFirebaseUser] = useState<firebase.User>(
     {} as firebase.User
   );
 
   const checkIsUserValid = (aFBUser: firebase.User) => {
-    debugger;
     return (
       !aFBUser === false &&
       Object.keys(aFBUser).length > 0 &&
@@ -74,45 +55,24 @@ export default function MusaEquationsApp({ Component, pageProps }: Props) {
       aFBUser?.uid?.length > 0
     );
   };
-
-  // const getData = async (firebaseUser: firebase.User) => {
-  //   const data = await query(
-  //     firebase
-  //       .firestore()
-  //       .collection("test-collection")
-  //       .where("userIds", "array-contains", firebaseUser.uid)
-  //   );
-
-  //   onSnapshot(data, (querySnapshot) => {
-  //     const databaseInfo: any[] = [];
-  //     const dataIds: string[] = [];
-
-  //     querySnapshot.forEach((doc) => {
-  //       databaseInfo.push(doc.data().testData);
-  //       dataIds.push(doc.id as string);
-  //     });
-
-  //     setIds(dataIds);
-  //     setInfo(databaseInfo);
-  //   });
-  // };
+  useEffect(() => {
+    console.log(JSON.stringify(firebaseUser));
+  }, [firebaseUser]);
 
   useEffect(() => {
     //handle changes to authorization state
     firebase.auth().onAuthStateChanged((newFirebaseUser: any) => {
-      console.log(newFirebaseUser.email);
       if (checkIsUserValid(newFirebaseUser)) {
-        console.log(newFirebaseUser.email);
         setIsAuthenticated(true);
         setFirebaseUser(newFirebaseUser as firebase.User);
       } else {
         setIsAuthenticated(false);
+        setFirebaseUser({} as firebase.User);
       }
     });
   }, []);
 
   function checkIsAuthenticated(): boolean {
-    debugger;
     return checkIsUserValid(firebaseUser) && isAuthenticated === true;
   }
 
