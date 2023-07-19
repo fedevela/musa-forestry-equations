@@ -1,12 +1,12 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import { executeSQL } from "../../demo/dbSQLite";
+import { executeSQLAll } from "../../demo/dbSQLite";
 import IHectareData from "../../demo/dbmodel/hectaredata";
 
 export default async function getAllData(
   req: NextApiRequest,
   res: NextApiResponse
 ) {
-  return executeSQL(
+  return executeSQLAll(
     `SELECT * FROM datahectare order by projectname, plantedspecies, year ;`
   ).then((rows) => {
     const hectaresData = rows as IHectareData[];

@@ -7,15 +7,10 @@ export interface IUser {
   displayName: string;
   isAnonymous: boolean;
   photoURL: string;
-  providerId: string;
-  providerUID: string;
-  refreshToken: string;
-  accessToken: string;
   tokenExpirationTime: Date;
   createdAt: Date;
   lastLoginAt: Date;
-  apiKey: string;
-  appName: string;
+  type: string;
 }
 
 export function createNewUserFromFirebaseUser(fbuser: firebase.User): IUser {
@@ -26,16 +21,14 @@ export function createNewUserFromFirebaseUser(fbuser: firebase.User): IUser {
     displayName: !fbuser.displayName ? "" : fbuser.displayName,
     isAnonymous: fbuser.isAnonymous,
     photoURL: !fbuser.photoURL ? "" : fbuser.photoURL,
-    providerId: !fbuser.providerId ? "" : fbuser.providerId,
-    //fix below
-    providerUID: !fbuser.providerId ? "" : fbuser.providerId,
-    refreshToken: !fbuser.refreshToken ? "" : fbuser.refreshToken,
-    accessToken: !fbuser.refreshToken ? "" : fbuser.refreshToken,
     tokenExpirationTime: new Date(),
     createdAt: new Date(),
     lastLoginAt: new Date(),
-    apiKey: !fbuser.refreshToken ? "" : fbuser.refreshToken,
-    appName: !fbuser.refreshToken ? "" : fbuser.refreshToken,
+    type: "IUser",
   };
   return newUser;
+}
+
+export function isAnIUser(obj: any): obj is IUser {
+  return "type" in obj && obj.type === "IUser";
 }

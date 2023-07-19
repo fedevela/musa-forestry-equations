@@ -2,7 +2,6 @@ import {
   PropsWithChildren,
   createContext,
   useContext,
-  useEffect,
   useState,
 } from "react";
 import { IUser } from "../dbmodel/user";
@@ -23,9 +22,16 @@ export const ContextProviderAuthenticatedUser = ({
     ContextTypeAuthenticatedUser["authenticatedUser"]
   >({} as IUser);
 
+  const setAuthenticatedUserExecute = (aUser: IUser) => {
+    setAuthenticatedUser(aUser);
+  };
+
   return (
     <ContextAuthenticatedUser.Provider
-      value={{ authenticatedUser, setAuthenticatedUser }}
+      value={{
+        authenticatedUser,
+        setAuthenticatedUser: setAuthenticatedUserExecute,
+      }}
     >
       {children}
     </ContextAuthenticatedUser.Provider>

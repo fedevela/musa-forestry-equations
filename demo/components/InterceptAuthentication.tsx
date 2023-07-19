@@ -4,6 +4,7 @@ import { ChildContainerProps } from "../../types/types";
 import { RenderButtonSignInWithGoogle } from "./RenderButtonSignInWithGoogle";
 import { useContextAuthenticatedUser } from "../context/ContextAuthenticatedUser";
 import { createNewUserFromFirebaseUser } from "../dbmodel/user";
+import axios from "axios";
 
 export const InterceptAuthentication = ({
   children,
@@ -35,7 +36,32 @@ export const InterceptAuthentication = ({
      * @param newFirebaseUser the new firebase user that has presumably just logged in
      */
     const handleOAuthStateChanged = (newFirebaseUser: any) => {
+      // no changes
+      if (newFirebaseUser === firebaseUser) return;
+
+      //user did change
       if (checkIsUserValid(newFirebaseUser)) {
+        const aUserURL = `/api/users?uid=${newFirebaseUser.uid}`;
+        const newLocalUser = createNewUserFromFirebaseUser(newFirebaseUser);
+        //check if user with same id exists in database if so update, else create
+        axios
+          .get(aUserURL, {})
+          .then((response: any) => {
+            console.log(`response.data`);
+            console.log(response.data);
+            debugger;
+            if (!response.data[0] === true) {
+              //not defined, create a new one
+              axios.post(aUserURL, newLocalUser);
+            } else {
+              // is defined, update
+              axios.put(aUserURL, newLocalUser);
+            }
+          })
+          .catch((err) => {
+            console.log(err);
+          });
+
         setIsAuthenticated(true);
         setFirebaseUser(newFirebaseUser as firebase.User);
         setAuthenticatedUser(createNewUserFromFirebaseUser(newFirebaseUser));
@@ -45,7 +71,7 @@ export const InterceptAuthentication = ({
       }
     };
     firebase.auth().onAuthStateChanged(handleOAuthStateChanged);
-  }, []);
+  }, [firebaseUser, setAuthenticatedUser]);
 
   return (
     <>
