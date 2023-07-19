@@ -14,7 +14,7 @@ import "../styles/demo/Demos.scss";
 import { signInWithGoogle } from "../demo/firebase";
 import { IUser, createNewUserFromFirebaseUser } from "../demo/dbmodel/user";
 import { ThemeSwitch } from "../demo/components/ThemeSwitch";
-import { ThemeContextProvider } from "../demo/ThemeContext";
+import { ThemeContextProvider, useThemeContext } from "../demo/context/ThemeContext";
 
 type Props = AppProps & {
   Component: Page;

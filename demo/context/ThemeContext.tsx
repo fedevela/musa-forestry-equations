@@ -6,19 +6,19 @@ import {
   useState,
 } from "react";
 
-type ContextType = {
+type ContextTypeTheme = {
   theme: string;
   setTheme: (theme: string) => void;
 };
 
-export const ThemeContext = createContext<ContextType | undefined>(undefined);
+export const ThemeContext = createContext<ContextTypeTheme | undefined>(undefined);
 
 export const ThemeContextProvider = ({ children }: PropsWithChildren<{}>) => {
-  const [theme, setTheme] = useState<ContextType["theme"]>("dark");
-  useEffect(() => {
-    console.log(`theme=`);
-    console.log(theme);
-  }, [theme]);
+  const [theme, setTheme] = useState<ContextTypeTheme["theme"]>("dark");
+  // useEffect(() => {
+  //   console.log(`theme=`);
+  //   console.log(theme);
+  // }, [theme]);
 
   return (
     <ThemeContext.Provider value={{ theme, setTheme }}>
@@ -31,7 +31,7 @@ export const useThemeContext = () => {
   const context = useContext(ThemeContext);
 
   if (!context) {
-    throw new Error("useThemeContext must be used inside the ThemeProvider");
+    throw new Error("useThemeContext must be used inside the ThemeContextProvider");
   }
 
   return context;

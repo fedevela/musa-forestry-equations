@@ -11,6 +11,7 @@ import { LayoutContext } from "../layout/context/layoutcontext";
 import Link from "next/link";
 import { Demo } from "../types/types";
 import { ChartData, ChartOptions } from "chart.js";
+import { useThemeContext } from "../demo/context/ThemeContext";
 
 const lineData: ChartData = {
   labels: ["January", "February", "March", "April", "May", "June", "July"],
@@ -40,6 +41,7 @@ const Dashboard = () => {
   const menu2 = useRef<Menu>(null);
   const [lineOptions, setLineOptions] = useState<ChartOptions>({});
   const { layoutConfig } = useContext(LayoutContext);
+  const { theme, setTheme } = useThemeContext();
 
   const applyLightTheme = () => {
     const lineOptions: ChartOptions = {
@@ -130,7 +132,7 @@ const Dashboard = () => {
         <div className="card mb-0">
           <div className="flex justify-content-between mb-3">
             <div>
-              <span className="block text-500 font-medium mb-3">Orders</span>
+              <span className="block text-500 font-medium mb-3">Orders {theme}</span>
               <div className="text-900 font-medium text-xl">152</div>
             </div>
             <div
