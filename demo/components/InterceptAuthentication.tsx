@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import firebase from "../firebase";
 import { ChildContainerProps } from "../../types/types";
 import { RenderButtonSignInWithGoogle } from "./RenderButtonSignInWithGoogle";
+import { useContextAuthenticatedUser } from "../context/ContextAuthenticatedUser";
+import { createNewUserFromFirebaseUser } from "../dbmodel/user";
 
 export const InterceptAuthentication = ({
   children,
@@ -10,6 +12,7 @@ export const InterceptAuthentication = ({
   const [firebaseUser, setFirebaseUser] = useState<firebase.User>(
     {} as firebase.User
   );
+  const { setAuthenticatedUser } = useContextAuthenticatedUser();
 
   function checkIsAuthenticated(): boolean {
     return checkIsUserValid(firebaseUser) && isAuthenticated === true;
@@ -35,6 +38,7 @@ export const InterceptAuthentication = ({
       if (checkIsUserValid(newFirebaseUser)) {
         setIsAuthenticated(true);
         setFirebaseUser(newFirebaseUser as firebase.User);
+        setAuthenticatedUser(createNewUserFromFirebaseUser(newFirebaseUser));
       } else {
         setIsAuthenticated(false);
         setFirebaseUser({} as firebase.User);

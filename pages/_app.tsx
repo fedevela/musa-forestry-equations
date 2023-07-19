@@ -43,8 +43,8 @@ export default function MusaEquationsApp({ Component, pageProps }: Props) {
             <InterceptAuthentication>
               <RenderCurrentComponent />
             </InterceptAuthentication>
-            test 0818
-            <ThemeSwitch></ThemeSwitch>
+            {/* test 0818
+            <ThemeSwitch></ThemeSwitch> */}
           </LayoutProvider>
         </ThemeContextProvider>
       </ContextProviderAuthenticatedUser>
