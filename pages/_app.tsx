@@ -12,6 +12,9 @@ import "../styles/layout/layout.scss";
 import "../styles/demo/Demos.scss";
 
 import { signInWithGoogle } from "../demo/firebase";
+import { IUser, createNewUserFromFirebaseUser } from "../demo/dbmodel/user";
+import { ThemeSwitch } from "../demo/components/ThemeSwitch";
+import { ThemeContextProvider } from "../demo/ThemeContext";
 
 type Props = AppProps & {
   Component: Page;
@@ -46,6 +49,7 @@ export default function MusaEquationsApp({ Component, pageProps }: Props) {
   const [firebaseUser, setFirebaseUser] = useState<firebase.User>(
     {} as firebase.User
   );
+  const [localUser, setLocalUser] = useState<IUser>({} as IUser);
 
   const checkIsUserValid = (aFBUser: firebase.User) => {
     return (
@@ -71,6 +75,7 @@ export default function MusaEquationsApp({ Component, pageProps }: Props) {
       if (checkIsUserValid(newFirebaseUser)) {
         setIsAuthenticated(true);
         setFirebaseUser(newFirebaseUser as firebase.User);
+        setLocalUser(createNewUserFromFirebaseUser(newFirebaseUser));
       } else {
         setIsAuthenticated(false);
         setFirebaseUser({} as firebase.User);
@@ -107,13 +112,17 @@ export default function MusaEquationsApp({ Component, pageProps }: Props) {
 
   return (
     <>
-      <LayoutProvider>
-        {checkIsAuthenticated() ? (
-          <RenderCurrentComponent />
-        ) : (
-          <RenderButtonSignInWithGoogle />
-        )}
-      </LayoutProvider>
+      <ThemeContextProvider>
+        <LayoutProvider>
+          {checkIsAuthenticated() ? (
+            <RenderCurrentComponent />
+          ) : (
+            <RenderButtonSignInWithGoogle />
+          )}
+          test 0818
+          <ThemeSwitch></ThemeSwitch>
+        </LayoutProvider>
+      </ThemeContextProvider>
     </>
   );
 }
