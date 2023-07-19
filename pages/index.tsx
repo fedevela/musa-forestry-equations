@@ -12,6 +12,7 @@ import Link from "next/link";
 import { Demo } from "../types/types";
 import { ChartData, ChartOptions } from "chart.js";
 import { useThemeContext } from "../demo/context/ThemeContext";
+import { useContextAuthenticatedUser } from "../demo/context/ContextAuthenticatedUser";
 
 const lineData: ChartData = {
   labels: ["January", "February", "March", "April", "May", "June", "July"],
@@ -42,6 +43,8 @@ const Dashboard = () => {
   const [lineOptions, setLineOptions] = useState<ChartOptions>({});
   const { layoutConfig } = useContext(LayoutContext);
   const { theme, setTheme } = useThemeContext();
+  const { authenticatedUser, setAuthenticatedUser } =
+    useContextAuthenticatedUser();
 
   const applyLightTheme = () => {
     const lineOptions: ChartOptions = {
@@ -132,8 +135,12 @@ const Dashboard = () => {
         <div className="card mb-0">
           <div className="flex justify-content-between mb-3">
             <div>
-              <span className="block text-500 font-medium mb-3">Orders {theme}</span>
-              <div className="text-900 font-medium text-xl">152</div>
+              <span className="block text-500 font-medium mb-3">
+                Orders {theme}
+              </span>
+              <div className="text-900 font-medium text-xl">
+                ****{authenticatedUser.email}****
+              </div>
             </div>
             <div
               className="flex align-items-center justify-content-center bg-blue-100 border-round"
