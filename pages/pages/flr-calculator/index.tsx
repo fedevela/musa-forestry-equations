@@ -41,12 +41,13 @@ const FLRCalculator = () => {
       });
   }
 
-  useEffect(() => {
-    console.log("carbonRetentionResults");
-    console.log(carbonRetentionResults);
-    console.log("hectareData");
-    console.log(hectareData);
-  }, [hectareData, carbonRetentionResults]);
+  // useEffect(() => {
+  //   console.log("carbonRetentionResults");
+  //   console.log(carbonRetentionResults);
+  //   console.log("hectareData");
+  //   console.log(hectareData);
+  // }, [hectareData, carbonRetentionResults]);
+
   useEffect(() => {
     executeRefreshHectareData();
     executeRefreshCarbonRetention();

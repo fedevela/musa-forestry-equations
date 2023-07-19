@@ -2,9 +2,9 @@ import { Database } from "sqlite3";
 
 const db = new Database("./database.db");
 
-const executeSQL = (sql: string) =>
+const executeSQL = (sql: string, parameters: any[] = []) =>
   new Promise((resolve, reject) => {
-    db.all(sql, [], (err, row) => {
+    db.all(sql, parameters, (err, row) => {
       if (err) {
         console.error(err.message);
         reject(err);
@@ -13,4 +13,4 @@ const executeSQL = (sql: string) =>
       }
     });
   });
-export default executeSQL;
+export { executeSQL };

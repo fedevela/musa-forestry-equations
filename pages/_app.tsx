@@ -55,13 +55,19 @@ export default function MusaEquationsApp({ Component, pageProps }: Props) {
       aFBUser?.uid?.length > 0
     );
   };
+
   useEffect(() => {
     console.log(JSON.stringify(firebaseUser));
   }, [firebaseUser]);
 
   useEffect(() => {
     //handle changes to authorization state
-    firebase.auth().onAuthStateChanged((newFirebaseUser: any) => {
+
+    /**
+     * This function handles whenever the current user changes
+     * @param newFirebaseUser the new firebase user that has presumably just logged in
+     */
+    const handleOAuthStateChanged = (newFirebaseUser: any) => {
       if (checkIsUserValid(newFirebaseUser)) {
         setIsAuthenticated(true);
         setFirebaseUser(newFirebaseUser as firebase.User);
@@ -69,7 +75,8 @@ export default function MusaEquationsApp({ Component, pageProps }: Props) {
         setIsAuthenticated(false);
         setFirebaseUser({} as firebase.User);
       }
-    });
+    };
+    firebase.auth().onAuthStateChanged(handleOAuthStateChanged);
   }, []);
 
   function checkIsAuthenticated(): boolean {

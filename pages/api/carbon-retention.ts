@@ -1,5 +1,5 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import executeSQL from "../../demo/dbSQLite";
+import { executeSQL } from "../../demo/dbSQLite";
 import {
   ICarbonRetentionResults,
   IValueProjectYearRollup,
