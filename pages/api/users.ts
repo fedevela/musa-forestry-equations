@@ -51,7 +51,49 @@ export default function getAllData(req: NextApiRequest, res: NextApiResponse) {
       //success
       res.status(200).send("Success!");
     });
+  } else if (req.method === "PUT") {
+    const incomingUser = req.body[0] || req.body;
+
+    //if user is invalid, stop
+    if (isAnIUser(incomingUser) === false) {
+      res.status(500).send("Invalid User");
+      return;
+    }
+
+    //create new user
+    return executeSQLRun(
+      `
+      UPDATE
+          user 
+      SET
+          uid = ?,
+          email = ?,
+          emailVerified = ?,
+          displayName = ?,
+          isAnonymous = ?,
+          photoURL = ?,
+          createdAt = ?,
+          lastLoginAt = ?
+      WHERE
+          uid = ?
+;
+  `,
+      [
+        incomingUser.uid,
+        incomingUser.email,
+        incomingUser.emailVerified,
+        incomingUser.displayName,
+        incomingUser.isAnonymous,
+        incomingUser.photoURL,
+        incomingUser.createdAt,
+        incomingUser.lastLoginAt,
+        incomingUser.uid,
+      ]
+    ).then(() => {
+      //success
+      res.status(200).send("Success!");
+    });
   } else {
-    res.status(405).send("Method Not Allowed");
+    res.status(405).send(`'${req.method}' Method Not Allowed!`);
   }
 }

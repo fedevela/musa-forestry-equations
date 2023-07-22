@@ -43,13 +43,11 @@ export const InterceptAuthentication = ({
       if (checkIsUserValid(newFirebaseUser)) {
         const aUserURL = `/api/users?uid=${newFirebaseUser.uid}`;
         const newLocalUser = createNewUserFromFirebaseUser(newFirebaseUser);
+
         //check if user with same id exists in database if so update, else create
         axios
           .get(aUserURL, {})
           .then((response: any) => {
-            console.log(`response.data`);
-            console.log(response.data);
-            debugger;
             if (!response.data[0] === true) {
               //not defined, create a new one
               axios.post(aUserURL, newLocalUser);
@@ -57,14 +55,15 @@ export const InterceptAuthentication = ({
               // is defined, update
               axios.put(aUserURL, newLocalUser);
             }
+            setIsAuthenticated(true);
+            setFirebaseUser(newFirebaseUser as firebase.User);
+            setAuthenticatedUser(
+              createNewUserFromFirebaseUser(newFirebaseUser)
+            );
           })
           .catch((err) => {
             console.log(err);
           });
-
-        setIsAuthenticated(true);
-        setFirebaseUser(newFirebaseUser as firebase.User);
-        setAuthenticatedUser(createNewUserFromFirebaseUser(newFirebaseUser));
       } else {
         setIsAuthenticated(false);
         setFirebaseUser({} as firebase.User);
