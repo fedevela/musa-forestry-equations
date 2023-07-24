@@ -11,7 +11,9 @@ type ContextTypeTheme = {
   setTheme: (theme: string) => void;
 };
 
-export const ThemeContext = createContext<ContextTypeTheme | undefined>(undefined);
+export const ThemeContext = createContext<ContextTypeTheme | undefined>(
+  undefined
+);
 
 export const ThemeContextProvider = ({ children }: PropsWithChildren<{}>) => {
   const [theme, setTheme] = useState<ContextTypeTheme["theme"]>("dark");
@@ -31,7 +33,9 @@ export const useThemeContext = () => {
   const context = useContext(ThemeContext);
 
   if (!context) {
-    throw new Error("useThemeContext must be used inside the ThemeContextProvider");
+    throw new Error(
+      "useThemeContext must be used inside the ThemeContextProvider"
+    );
   }
 
   return context;

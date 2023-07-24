@@ -1,6 +1,7 @@
 import type { AppProps } from "next/app";
 import type { Page } from "../types/types";
-import React from "react";
+import React, { useRef } from "react";
+import { Toast } from "primereact/toast";
 import { LayoutProvider } from "../layout/context/layoutcontext";
 import Layout from "../layout/layout";
 
@@ -11,6 +12,7 @@ import "../styles/layout/layout.scss";
 import "../styles/demo/Demos.scss";
 
 import { ThemeContextProvider } from "../demo/context/ThemeContext";
+import { ContextProviderMessagesToast } from "../demo/context/ContextMessagesToast";
 import { ContextProviderAuthenticatedUser } from "../demo/context/ContextAuthenticatedUser";
 import { InterceptAuthentication } from "../demo/components/InterceptAuthentication";
 
@@ -19,10 +21,6 @@ type Props = AppProps & {
 };
 
 export default function MusaEquationsApp({ Component, pageProps }: Props) {
-  // useEffect(() => {
-  //   console.log(JSON.stringify(firebaseUser));
-  // }, [firebaseUser]);
-
   function RenderCurrentComponent(): React.ReactNode {
     return Component.getLayout ? (
       Component.getLayout(<Component {...pageProps} />)
@@ -35,17 +33,19 @@ export default function MusaEquationsApp({ Component, pageProps }: Props) {
 
   return (
     <>
-      <ContextProviderAuthenticatedUser>
-        <ThemeContextProvider>
-          <LayoutProvider>
-            <InterceptAuthentication>
-              <RenderCurrentComponent />
-            </InterceptAuthentication>
-            {/* test 0818
+      <ContextProviderMessagesToast>
+        <ContextProviderAuthenticatedUser>
+          <ThemeContextProvider>
+            <LayoutProvider>
+              <InterceptAuthentication>
+                <RenderCurrentComponent />
+              </InterceptAuthentication>
+              {/* test 0818
             <ThemeSwitch></ThemeSwitch> */}
-          </LayoutProvider>
-        </ThemeContextProvider>
-      </ContextProviderAuthenticatedUser>
+            </LayoutProvider>
+          </ThemeContextProvider>
+        </ContextProviderAuthenticatedUser>
+      </ContextProviderMessagesToast>
     </>
   );
 }

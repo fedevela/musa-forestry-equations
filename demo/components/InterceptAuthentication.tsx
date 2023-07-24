@@ -13,7 +13,8 @@ export const InterceptAuthentication = ({
   const [firebaseUser, setFirebaseUser] = useState<firebase.User>(
     {} as firebase.User
   );
-  const { setAuthenticatedUser } = useContextAuthenticatedUser();
+  const { authenticatedUser, setAuthenticatedUser } =
+    useContextAuthenticatedUser();
 
   function checkIsAuthenticated(): boolean {
     return checkIsUserValid(firebaseUser) && isAuthenticated === true;
@@ -37,7 +38,7 @@ export const InterceptAuthentication = ({
      */
     const handleOAuthStateChanged = (newFirebaseUser: any) => {
       // no changes
-      if (newFirebaseUser === firebaseUser) return;
+      // if (newFirebaseUser === firebaseUser) return;
 
       //user did change
       if (checkIsUserValid(newFirebaseUser)) {
@@ -70,7 +71,7 @@ export const InterceptAuthentication = ({
       }
     };
     firebase.auth().onAuthStateChanged(handleOAuthStateChanged);
-  }, [firebaseUser, setAuthenticatedUser]);
+  }, []);
 
   return (
     <>

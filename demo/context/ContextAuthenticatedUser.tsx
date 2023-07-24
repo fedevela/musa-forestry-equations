@@ -2,9 +2,11 @@ import {
   PropsWithChildren,
   createContext,
   useContext,
+  useEffect,
   useState,
 } from "react";
 import { IUser } from "../dbmodel/user";
+import { ContextMessagesToast } from "./ContextMessagesToast";
 
 type ContextTypeAuthenticatedUser = {
   authenticatedUser: IUser;
@@ -18,6 +20,8 @@ export const ContextAuthenticatedUser = createContext<
 export const ContextProviderAuthenticatedUser = ({
   children,
 }: PropsWithChildren<{}>) => {
+  const contextMessagesToast = useContext(ContextMessagesToast);
+
   const [authenticatedUser, setAuthenticatedUser] = useState<
     ContextTypeAuthenticatedUser["authenticatedUser"]
   >({} as IUser);
@@ -25,6 +29,18 @@ export const ContextProviderAuthenticatedUser = ({
   const setAuthenticatedUserExecute = (aUser: IUser) => {
     setAuthenticatedUser(aUser);
   };
+
+  useEffect(() => {
+    if (
+      !authenticatedUser === false &&
+      !authenticatedUser.email === false &&
+      !authenticatedUser.displayName === false
+    )
+      contextMessagesToast?.showSuccess(
+        "Login Successful: " + authenticatedUser.email,
+        "Welcome " + authenticatedUser.displayName
+      );
+  }, [authenticatedUser, contextMessagesToast]);
 
   return (
     <ContextAuthenticatedUser.Provider
